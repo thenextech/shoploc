@@ -1,6 +1,8 @@
 package nextech.shoploc.controllers.auth;
 
 import jakarta.servlet.http.HttpSession;
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 import nextech.shoploc.models.admin.AdminRequestDTO;
 import nextech.shoploc.models.admin.AdminResponseDTO;
 import nextech.shoploc.services.admin.AdminService;
@@ -11,6 +13,8 @@ import org.springframework.web.bind.annotation.*;
 
 @Controller
 @RequestMapping("/admin")
+@AllArgsConstructor
+@NoArgsConstructor
 public class AdminLoginController {
 
     @Autowired
@@ -67,4 +71,6 @@ public class AdminLoginController {
         sessionManager.setUserAsDisconnected(session);
         return "redirect:/admin/login";
     }
+
+
 }
