@@ -1,4 +1,4 @@
-package nextech.shoploc.controllers;
+package nextech.shoploc.controllers.auth;
 
 import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Component;

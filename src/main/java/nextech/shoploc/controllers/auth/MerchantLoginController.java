@@ -1,19 +1,22 @@
-package nextech.shoploc.controllers;
+package nextech.shoploc.controllers.auth;
 
 import jakarta.servlet.http.HttpSession;
+import nextech.shoploc.models.merchant.MerchantRequestDTO;
 import nextech.shoploc.models.merchant.MerchantResponseDTO;
 import nextech.shoploc.services.merchant.MerchantService;
+import nextech.shoploc.services.user.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 @Controller
 @RequestMapping("/merchant")
-public class LoginMerchantController {
+public class MerchantLoginController {
 
     @Autowired
-    private MerchantService clientService;
-
+    private MerchantService merchantService;
+    @Autowired
+    private UserService userService;
     @Autowired
     private SessionManager sessionManager;
 
@@ -26,12 +29,9 @@ public class LoginMerchantController {
     }
 
     @PostMapping("/login")
-    public String login(@RequestParam String email,
-                        @RequestParam String password,
-                        HttpSession session) {
-        MerchantResponseDTO merchantResponseDTO = clientService.getMerchantByEmail(email);
-        if (merchantResponseDTO != null &&
-                merchantResponseDTO.getPassword().equals(password)) {
+    public String login(@RequestParam String email, @RequestParam String password, HttpSession session) {
+        MerchantResponseDTO merchantResponseDTO = merchantService.getMerchantByEmail(email);
+        if (merchantResponseDTO != null && userService.verifyPassword(password, merchantResponseDTO.getPassword())) {
             sessionManager.setUserAsConnected(email, "merchant", session);
             return "redirect:/merchant/dashboard";
         }
@@ -43,10 +43,10 @@ public class LoginMerchantController {
         return "merchant/register";
     }
 
-    @PostMapping("/register")
-    public String register(@ModelAttribute("user") MerchantResponseDTO merchant) {
-        MerchantResponseDTO ard = clientService.createMerchant(merchant);
-        if (ard == null) {
+    @PostMapping("/registerMerchant") // Renommée en "registerMerchant"
+    public String registerMerchant(@ModelAttribute("user") MerchantRequestDTO merchant) {
+        MerchantResponseDTO mrd = merchantService.createMerchant(merchant);
+        if (mrd == null) {
             return "redirect:/merchant/register?error";
         }
         return "redirect:/merchant/login";
@@ -54,10 +54,7 @@ public class LoginMerchantController {
 
     @GetMapping("/dashboard")
     public String dashboard(HttpSession session) {
-        if (session != null
-                && sessionManager.getConnectedUserType(session) != null
-                && sessionManager.getConnectedUserEmail(session) != null
-                && sessionManager.getConnectedUserType(session).equals("merchant")) {
+        if (session != null && sessionManager.getConnectedUserType(session) != null && sessionManager.getConnectedUserEmail(session) != null && sessionManager.getConnectedUserType(session).equals("merchant")) {
             return "merchant/dashboard";
         }
         return "redirect:/merchant/login";
@@ -69,5 +66,4 @@ public class LoginMerchantController {
         sessionManager.setUserAsDisconnected(session);
         return "redirect:/merchant/login";
     }
-
 }

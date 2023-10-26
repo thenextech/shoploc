@@ -1,19 +1,22 @@
-package nextech.shoploc.controllers;
+package nextech.shoploc.controllers.auth;
 
 import jakarta.servlet.http.HttpSession;
+import nextech.shoploc.models.client.ClientRequestDTO;
 import nextech.shoploc.models.client.ClientResponseDTO;
 import nextech.shoploc.services.client.ClientService;
+import nextech.shoploc.services.user.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 @Controller
-@RequestMapping("/client")
-public class LoginClientController {
+@RequestMapping("/client") // Utilisez "/client" au lieu de "/admin" pour le chemin de base
+public class ClientLoginController {
 
     @Autowired
     private ClientService clientService;
-
+    @Autowired
+    private UserService userService;
     @Autowired
     private SessionManager sessionManager;
 
@@ -26,12 +29,9 @@ public class LoginClientController {
     }
 
     @PostMapping("/login")
-    public String login(@RequestParam String email,
-                        @RequestParam String password,
-                        HttpSession session) {
+    public String login(@RequestParam String email, @RequestParam String password, HttpSession session) {
         ClientResponseDTO clientResponseDTO = clientService.getClientByEmail(email);
-        if (clientResponseDTO != null &&
-                clientResponseDTO.getPassword().equals(password)) {
+        if (clientResponseDTO != null && userService.verifyPassword(password, clientResponseDTO.getPassword())) {
             sessionManager.setUserAsConnected(email, "client", session);
             return "redirect:/client/dashboard";
         }
@@ -44,9 +44,9 @@ public class LoginClientController {
     }
 
     @PostMapping("/register")
-    public String register(@ModelAttribute("user") ClientResponseDTO client) {
-        ClientResponseDTO ard = clientService.createClient(client);
-        if (ard == null) {
+    public String register(@ModelAttribute("user") ClientRequestDTO client) {
+        ClientResponseDTO crd = clientService.createClient(client);
+        if (crd == null) {
             return "redirect:/client/register?error";
         }
         return "redirect:/client/login";
@@ -54,10 +54,7 @@ public class LoginClientController {
 
     @GetMapping("/dashboard")
     public String dashboard(HttpSession session) {
-        if (session != null
-                && sessionManager.getConnectedUserType(session) != null
-                && sessionManager.getConnectedUserEmail(session) != null
-                && sessionManager.getConnectedUserType(session).equals("client")) {
+        if (session != null && sessionManager.getConnectedUserType(session) != null && sessionManager.getConnectedUserEmail(session) != null && sessionManager.getConnectedUserType(session).equals("client")) {
             return "client/dashboard";
         }
         return "redirect:/client/login";
@@ -69,5 +66,4 @@ public class LoginClientController {
         sessionManager.setUserAsDisconnected(session);
         return "redirect:/client/login";
     }
-
 }

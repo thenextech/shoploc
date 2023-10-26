@@ -1,4 +1,4 @@
-package nextech.shoploc.controllers;
+package nextech.shoploc.controllers.crud;
 
 import nextech.shoploc.models.client.ClientRequestDTO;
 import nextech.shoploc.models.client.ClientResponseDTO;

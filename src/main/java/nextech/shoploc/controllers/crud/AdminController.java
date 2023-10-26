@@ -1,4 +1,4 @@
-package nextech.shoploc.controllers;
+package nextech.shoploc.controllers.crud;
 
 import nextech.shoploc.models.admin.AdminRequestDTO;
 import nextech.shoploc.models.admin.AdminResponseDTO;
@@ -9,7 +9,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/admins")
