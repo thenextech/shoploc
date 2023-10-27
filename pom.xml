@@ -16,11 +16,9 @@
 	<description>Shoploc</description>
 	<properties>
 		<java.version>17</java.version>
-	</properties>
-	<properties>
 		<sonar.organization>nextechsolutions</sonar.organization>
 		<sonar.host.url>https://sonarcloud.io</sonar.host.url>
-	  </properties>
+	</properties>
 	<dependencies>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
