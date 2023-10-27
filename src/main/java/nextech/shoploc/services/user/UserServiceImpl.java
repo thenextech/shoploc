@@ -11,21 +11,25 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 @Service
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
     private final ModelMapperUtils modelMapperUtils;
+    private final BCryptPasswordEncoder passwordEncoder;
 
-    public UserServiceImpl(UserRepository userRepository, ModelMapperUtils modelMapperUtils) {
+    public UserServiceImpl(UserRepository userRepository, ModelMapperUtils modelMapperUtils, BCryptPasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.modelMapperUtils = modelMapperUtils;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Override
     public UserResponseDTO createUser(UserRequestDTO userRequestDTO) {
         User user = modelMapperUtils.getModelMapper().map(userRequestDTO, User.class);
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
         user = userRepository.save(user);
         return modelMapperUtils.getModelMapper().map(user, UserResponseDTO.class);
     }
@@ -76,4 +80,11 @@ public class UserServiceImpl implements UserService {
             return modelMapperUtils.getModelMapper().map(user, UserResponseDTO.class);
         }).orElseThrow(() -> new NotFoundException("User not found with ID: " + id));
     }
+
+    @Override
+    public boolean verifyPassword(String rawPassword, String encodedPassword) {
+        return passwordEncoder.matches(rawPassword, encodedPassword);
+    }
+
+
 }
