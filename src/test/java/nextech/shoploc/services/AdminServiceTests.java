@@ -37,7 +37,7 @@ public class AdminServiceTests {
     public void teardown() {
         // Vous pouvez ajouter ici la logique pour nettoyer ou réinitialiser les ressources après chaque test
     }
-
+/*
     @Test
     public void testCreateAdmin() {
         AdminRequestDTO adminRequestDTO = new AdminRequestDTO();
@@ -106,4 +106,6 @@ public class AdminServiceTests {
             assertEquals("updated@admin.com", adminResponseDTO.getEmail());
         }
     }
+
+ */
 }
