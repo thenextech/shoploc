@@ -110,6 +110,7 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: target
+          path: target/
           
       - name: Show directory
         run: ls
