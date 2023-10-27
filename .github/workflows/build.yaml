@@ -42,6 +42,12 @@ jobs:
       - name: Build with Maven
         run: mvn package
 
+      - name: Archive artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: target
+          path: target/
+
       - name: Run unit tests
         run: mvn test
 
@@ -84,7 +90,27 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v3
+    
+      - name: Install OpenVPN Client
+        run: sudo apt-get update && sudo apt-get install openvpn
 
+      - name: Download VPN Configuration
+        run: |
+          wget https://infotuto.univ-lille.fr/fileadmin/user_upload/infotuto/images/DSI/Fichiers_telechargeables/Clients_VPN/ULILLE_VPN_ETUDIANT_Linux_v4.zip
+          unzip ULILLE_VPN_ETUDIANT_Linux_v4.zip
+
+      - name: OpenVPN-Connect
+        uses: kota65535/github-openvpn-connect-action@v2.1.0
+        with:
+          config_file: ULILLE_VPN_ETU_TCP_v4_Linux.ovpn
+          username: ${{ secrets.VPN_USERNAME }}
+          password: ${{ secrets.VPN_PASSWORD }}
+
+      - name: Download artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: target
+          
       - name: Show directory
         run: ls
     
