@@ -1,5 +1,9 @@
 package nextech.shoploc.controllers.crud;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import io.swagger.v3.oas.annotations.Operation;
 import nextech.shoploc.models.admin.AdminRequestDTO;
 import nextech.shoploc.models.admin.AdminResponseDTO;
 import nextech.shoploc.services.admin.AdminService;
@@ -12,6 +16,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/admins")
+@Api(tags = "Admins", description = "Operations on admins")
 public class AdminController {
 
     private final AdminService adminService;
@@ -22,6 +27,7 @@ public class AdminController {
     }
 
     @PostMapping("/create")
+    @ApiOperation(value = "Create an admin", notes = "Creates a new admin")
     public ResponseEntity<AdminResponseDTO> createAdmin(@RequestBody AdminRequestDTO adminRequestDTO) {
         AdminResponseDTO createdAdmin = adminService.createAdmin(adminRequestDTO);
         if (createdAdmin != null) {
@@ -32,7 +38,9 @@ public class AdminController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<AdminResponseDTO> getAdminById(@PathVariable Long id) {
+    @ApiOperation(value = "Get admin by ID", notes = "Retrieve an admin by their ID")
+    public ResponseEntity<AdminResponseDTO> getAdminById(
+            @ApiParam(value = "ID de l'administrateur", required = true) @PathVariable Long id) {
         AdminResponseDTO admin = adminService.getAdminById(id);
         if (admin != null) {
             return new ResponseEntity<>(admin, HttpStatus.OK);
@@ -42,7 +50,9 @@ public class AdminController {
     }
 
     @GetMapping("/email/{email}")
-    public ResponseEntity<AdminResponseDTO> getAdminByEmail(@PathVariable String email) {
+    @ApiOperation(value = "Get admin by email", notes = "Retrieve an admin by their email address")
+    public ResponseEntity<AdminResponseDTO> getAdminByEmail(
+            @ApiParam(value = "Adresse e-mail de l'administrateur", required = true) @PathVariable String email) {
         AdminResponseDTO admin = adminService.getAdminByEmail(email);
         if (admin != null) {
             return new ResponseEntity<>(admin, HttpStatus.OK);
@@ -51,12 +61,11 @@ public class AdminController {
         }
     }
 
-
     @GetMapping("/all")
+    @Operation(summary = "Get all Admins")
     public ResponseEntity<List<AdminResponseDTO>> getAllAdmins() {
         List<AdminResponseDTO> admins = adminService.getAllAdmins();
         return new ResponseEntity<>(admins, HttpStatus.OK);
     }
 
-    // Ajoutez d'autres méthodes de contrôleur si nécessaire.
 }

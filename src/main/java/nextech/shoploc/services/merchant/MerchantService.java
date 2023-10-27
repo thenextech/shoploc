@@ -4,7 +4,6 @@ import nextech.shoploc.models.merchant.MerchantRequestDTO;
 import nextech.shoploc.models.merchant.MerchantResponseDTO;
 
 import java.util.List;
-import java.util.Optional;
 
 public interface MerchantService {
     MerchantResponseDTO createMerchant(MerchantRequestDTO merchantRequestDTO);

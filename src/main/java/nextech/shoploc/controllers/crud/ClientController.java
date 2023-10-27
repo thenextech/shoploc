@@ -1,5 +1,7 @@
 package nextech.shoploc.controllers.crud;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import nextech.shoploc.models.client.ClientRequestDTO;
 import nextech.shoploc.models.client.ClientResponseDTO;
 import nextech.shoploc.services.client.ClientService;
@@ -11,6 +13,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/clients")
+@Api(tags = "Clients", description = "Operations on clients")
 public class ClientController {
 
     private final ClientService clientService;
@@ -20,12 +23,14 @@ public class ClientController {
     }
 
     @GetMapping
+    @ApiOperation(value = "Get all clients", notes = "Retrieve a list of all clients")
     public ResponseEntity<List<ClientResponseDTO>> getAllClients() {
         List<ClientResponseDTO> clients = clientService.getAllClients();
         return ResponseEntity.ok(clients);
     }
 
     @GetMapping("/{id}")
+    @ApiOperation(value = "Get all clients", notes = "Retrieve a list of all clients")
     public ResponseEntity<ClientResponseDTO> getClientById(@PathVariable Long id) {
         ClientResponseDTO client = clientService.getClientById(id);
         if (client != null) {
@@ -36,12 +41,14 @@ public class ClientController {
     }
 
     @PostMapping
+    @ApiOperation(value = "Create a client", notes = "Creates a new client")
     public ResponseEntity<ClientResponseDTO> createClient(@RequestBody ClientRequestDTO clientRequestDTO) {
         ClientResponseDTO client = clientService.createClient(clientRequestDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body(client);
     }
 
     @PutMapping("/{id}")
+    @ApiOperation(value = "Update a client", notes = "Update an existing client by their ID")
     public ResponseEntity<ClientResponseDTO> updateClient(@PathVariable Long id, @RequestBody ClientRequestDTO clientRequestDTO) {
         ClientResponseDTO updatedClient = clientService.updateClient(id, clientRequestDTO);
         if (updatedClient != null) {
@@ -52,6 +59,7 @@ public class ClientController {
     }
 
     @DeleteMapping("/{id}")
+    @ApiOperation(value = "Delete a client", notes = "Delete a client by their ID")
     public ResponseEntity<Void> deleteClient(@PathVariable Long id) {
         clientService.deleteClient(id);
         return ResponseEntity.noContent().build();

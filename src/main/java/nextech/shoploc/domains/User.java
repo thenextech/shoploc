@@ -1,10 +1,10 @@
 package nextech.shoploc.domains;
 
 import jakarta.persistence.*;
-import lombok.*;
-import net.bytebuddy.dynamic.loading.InjectionClassLoader;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-import java.io.Serializable;
 import java.util.Date;
 
 @Entity

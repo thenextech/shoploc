@@ -1,11 +1,9 @@
 package nextech.shoploc.services.admin;
 
-import nextech.shoploc.domains.Admin;
 import nextech.shoploc.models.admin.AdminRequestDTO;
 import nextech.shoploc.models.admin.AdminResponseDTO;
 
 import java.util.List;
-import java.util.Optional;
 
 public interface AdminService {
     AdminResponseDTO createAdmin(AdminRequestDTO adminRequestDTO);

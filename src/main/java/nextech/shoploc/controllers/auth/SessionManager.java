@@ -6,7 +6,6 @@ import org.springframework.stereotype.Component;
 @Component
 public class SessionManager {
 
-
     public void setUserAsConnected(String userEmail, String userType, HttpSession session) {
         session.setAttribute("userEmail", userEmail);
         session.setAttribute("userType", userType);

@@ -6,10 +6,9 @@ import nextech.shoploc.models.merchant.MerchantResponseDTO;
 import nextech.shoploc.services.merchant.MerchantService;
 import nextech.shoploc.services.user.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
-@Controller
+@RestController
 @RequestMapping("/merchant")
 public class MerchantLoginController {
 

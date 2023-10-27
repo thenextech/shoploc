@@ -1,5 +1,8 @@
 package nextech.shoploc.controllers.crud;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.v3.oas.annotations.Operation;
 import nextech.shoploc.models.merchant.MerchantRequestDTO;
 import nextech.shoploc.models.merchant.MerchantResponseDTO;
 import nextech.shoploc.services.merchant.MerchantService;
@@ -12,6 +15,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/merchants")
+@Api(tags = "Merchants", description = "Operations on merchants")
 public class MerchantController {
 
     private final MerchantService merchantService;
@@ -22,12 +26,14 @@ public class MerchantController {
     }
 
     @PostMapping("/create")
+    @ApiOperation(value = "Create a merchant", notes = "Creates a new merchant")
     public ResponseEntity<MerchantResponseDTO> createMerchant(@RequestBody MerchantRequestDTO merchantRequestDTO) {
         MerchantResponseDTO createdMerchant = merchantService.createMerchant(merchantRequestDTO);
         return new ResponseEntity<>(createdMerchant, HttpStatus.CREATED);
     }
 
     @GetMapping("/{id}")
+    @ApiOperation(value = "Get merchant by ID", notes = "Retrieve a merchant by their ID")
     public ResponseEntity<MerchantResponseDTO> getMerchantById(@PathVariable Long id) {
         MerchantResponseDTO merchant = merchantService.getMerchantById(id);
         if (merchant != null) {
@@ -38,6 +44,7 @@ public class MerchantController {
     }
 
     @GetMapping("/email/{email}")
+    @ApiOperation(value = "Get merchant by email", notes = "Retrieve a merchant by their email address")
     public ResponseEntity<MerchantResponseDTO> getMerchantByEmail(@PathVariable String email) {
         MerchantResponseDTO merchant = merchantService.getMerchantByEmail(email);
         if (merchant != null) {
@@ -48,6 +55,7 @@ public class MerchantController {
     }
 
     @GetMapping("/all")
+    @Operation(summary = "Get all Merchants")
     public ResponseEntity<List<MerchantResponseDTO>> getAllMerchants() {
         List<MerchantResponseDTO> merchants = merchantService.getAllMerchants();
         return new ResponseEntity<>(merchants, HttpStatus.OK);

@@ -1,10 +1,13 @@
 package nextech.shoploc.domains;
 
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import nextech.shoploc.domains.enums.MerchantStatus;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 @Entity
 @Data
 @NoArgsConstructor

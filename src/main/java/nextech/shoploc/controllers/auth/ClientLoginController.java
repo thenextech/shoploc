@@ -6,11 +6,10 @@ import nextech.shoploc.models.client.ClientResponseDTO;
 import nextech.shoploc.services.client.ClientService;
 import nextech.shoploc.services.user.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
-@Controller
-@RequestMapping("/client") // Utilisez "/client" au lieu de "/admin" pour le chemin de base
+@RestController
+@RequestMapping("/client")
 public class ClientLoginController {
 
     @Autowired

@@ -6,12 +6,12 @@ import nextech.shoploc.models.user.UserResponseDTO;
 import nextech.shoploc.repositories.UserRepository;
 import nextech.shoploc.utils.ModelMapperUtils;
 import nextech.shoploc.utils.exceptions.NotFoundException;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 @Service
 public class UserServiceImpl implements UserService {

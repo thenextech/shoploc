@@ -1,8 +1,8 @@
 package nextech.shoploc.models.merchantSchedule;
 
-import nextech.shoploc.domains.enums.DayOfWeek;
 import lombok.Getter;
 import lombok.Setter;
+import nextech.shoploc.domains.enums.DayOfWeek;
 
 @Getter
 @Setter
