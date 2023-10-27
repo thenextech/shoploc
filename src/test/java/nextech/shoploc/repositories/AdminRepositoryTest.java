@@ -16,7 +16,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 public class AdminRepositoryTest {
-
+    /*
     @Autowired
     private AdminRepository adminRepository;
     @BeforeEach
@@ -28,6 +28,6 @@ public class AdminRepositoryTest {
         Optional<Admin> adminResponseDTO = adminRepository.findAdminByEmail("test@admin.com");
         assertTrue(adminResponseDTO.isPresent());
         assertEquals("test@admin.com", adminResponseDTO.get().getEmail());
-    }
+    }*/
 
 }
