@@ -1,12 +1,31 @@
 package nextech.shoploc.controllers.auth;
 
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
 import jakarta.servlet.http.HttpSession;
 import nextech.shoploc.models.client.ClientRequestDTO;
 import nextech.shoploc.models.client.ClientResponseDTO;
 import nextech.shoploc.services.client.ClientService;
 import nextech.shoploc.services.user.UserService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/client")
@@ -28,13 +47,13 @@ public class ClientLoginController {
     }
 
     @PostMapping("/login")
-    public String login(@RequestParam String email, @RequestParam String password, HttpSession session) {
-        ClientResponseDTO clientResponseDTO = clientService.getClientByEmail(email);
-        if (clientResponseDTO != null && userService.verifyPassword(password, clientResponseDTO.getPassword())) {
-            sessionManager.setUserAsConnected(email, "client", session);
-            return "redirect:/client/dashboard";
+    public ResponseEntity<?> login(@RequestParam String email, @RequestParam String password, HttpSession session) {
+    	ClientResponseDTO crd = clientService.loginClient(email, password);
+        if (crd != null) {
+        	sessionManager.setUserAsConnected(email, "client", session);
+        	return ResponseEntity.ok(crd);
         }
-        return "redirect:/client/login?error";
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Identifiant ou mot de passe incorrect");
     }
 
     @GetMapping("/register")
@@ -43,12 +62,15 @@ public class ClientLoginController {
     }
 
     @PostMapping("/register")
-    public String register(@ModelAttribute("user") ClientRequestDTO client) {
+    public ResponseEntity<?> register(@ModelAttribute("user") ClientRequestDTO client) {
         ClientResponseDTO crd = clientService.createClient(client);
         if (crd == null) {
-            return "redirect:/client/register?error";
+        	String errorMessage = "L'inscription a échoué. Veuillez réessayer.";
+            return new ResponseEntity<>(errorMessage, HttpStatus.BAD_REQUEST);
         }
-        return "redirect:/client/login";
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Location", "http://localhost:3000/login");
+        return new ResponseEntity<>(headers, HttpStatus.FOUND);
     }
 
     @GetMapping("/dashboard")
