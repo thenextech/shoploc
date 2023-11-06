@@ -1,21 +1,13 @@
 package nextech.shoploc.controllers.auth;
 
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -30,6 +22,8 @@ import nextech.shoploc.services.user.UserService;
 @RestController
 @RequestMapping("/client")
 public class ClientLoginController {
+	
+	
 
     @Autowired
     private ClientService clientService;
@@ -51,7 +45,7 @@ public class ClientLoginController {
     	ClientResponseDTO crd = clientService.loginClient(email, password);
         if (crd != null) {
         	sessionManager.setUserAsConnected(email, "client", session);
-        	return ResponseEntity.ok(crd);
+        	return ResponseEntity.ok(crd.getId());
         }
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Identifiant ou mot de passe incorrect");
     }
@@ -64,13 +58,13 @@ public class ClientLoginController {
     @PostMapping("/register")
     public ResponseEntity<?> register(@ModelAttribute("user") ClientRequestDTO client) {
         ClientResponseDTO crd = clientService.createClient(client);
+        Map<String, Object> response = new HashMap<>();
         if (crd == null) {
         	String errorMessage = "L'inscription a échoué. Veuillez réessayer.";
             return new ResponseEntity<>(errorMessage, HttpStatus.BAD_REQUEST);
         }
-        HttpHeaders headers = new HttpHeaders();
-        headers.add("Location", "http://localhost:3000/login");
-        return new ResponseEntity<>(headers, HttpStatus.FOUND);
+        response.put("url", crd);
+        return new ResponseEntity<>(response, HttpStatus.FOUND);
     }
 
     @GetMapping("/dashboard")
