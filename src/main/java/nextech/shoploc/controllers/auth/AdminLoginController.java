@@ -1,5 +1,6 @@
 package nextech.shoploc.controllers.auth;
 
+import jakarta.mail.MessagingException;
 import jakarta.servlet.http.HttpSession;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
@@ -17,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
 import java.util.Map;
+
 @RestController
 @RequestMapping("/admin")
 @AllArgsConstructor
@@ -50,15 +52,18 @@ public class AdminLoginController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<Map<String, Object>> login(@RequestParam String email, @RequestParam String password, HttpSession session) {
+    public ResponseEntity<Map<String, Object>> login(@RequestParam String email, @RequestParam String password, HttpSession session) throws MessagingException {
 
         AdminResponseDTO adminResponseDTO = adminService.getAdminByEmail(email);
         if (adminResponseDTO != null && userService.verifyPassword(password, adminResponseDTO.getPassword())) {
             // Générez un code de vérification et envoyez-le par e-mail
             String verificationCode = verificationCodeService.generateVerificationCode();
+            // Construisez le contenu HTML de l'e-mail
+
+
+            // Envoyez l'e-mail
             String subject = "Code de vérification Shoploc";
-            String text = "Votre code de vérification Shoploc est : " + verificationCode;
-            emailSenderService.sendEmail(email, subject, text);
+            emailSenderService.sendHtmlEmail(email, subject, verificationCode);
 
             // Stockez le code de vérification dans la session
             session.setAttribute("verificationCode", verificationCode);
