@@ -1,6 +1,7 @@
 package nextech.shoploc.controllers.auth;
 
 import jakarta.servlet.http.HttpSession;
+import nextech.shoploc.domains.enums.UserTypes;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -16,7 +17,7 @@ public class SessionManager {
     }
 
     public boolean isUserConnectedAsAdmin(HttpSession session) {
-        return session.getAttribute("userEmail") != null && session.getAttribute("userType").equals("admin");
+        return session.getAttribute("userEmail") != null && session.getAttribute("userType").equals(UserTypes.admin);
     }
 
     public String getConnectedUserType(HttpSession session) {
@@ -28,10 +29,17 @@ public class SessionManager {
     }
 
     public boolean isUserConnectedAsClient(HttpSession session) {
-        return session.getAttribute("userEmail") != null && session.getAttribute("userType").equals("client");
+        return session.getAttribute("userEmail") != null && session.getAttribute("userType").equals(UserTypes.client);
     }
 
     public boolean isUserConnectedAsMerchant(HttpSession session) {
-        return session.getAttribute("userEmail") != null && session.getAttribute("userType").equals("merchant");
+        return session.getAttribute("userEmail") != null && session.getAttribute("userType").equals(UserTypes.merchant);
     }
+
+    public boolean isUserConnected(HttpSession session, String userType) {
+        Object sessionUserType = session.getAttribute("userType");
+        return sessionUserType != null && sessionUserType.equals(userType);
+    }
+
+
 }

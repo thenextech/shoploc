@@ -1,12 +1,18 @@
 package nextech.shoploc.controllers.auth;
 
 import jakarta.servlet.http.HttpSession;
+import nextech.shoploc.domains.enums.UserTypes;
 import nextech.shoploc.models.merchant.MerchantRequestDTO;
 import nextech.shoploc.models.merchant.MerchantResponseDTO;
 import nextech.shoploc.services.merchant.MerchantService;
 import nextech.shoploc.services.user.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/merchant")
@@ -20,49 +26,72 @@ public class MerchantLoginController {
     private SessionManager sessionManager;
 
     @GetMapping("/login")
-    public String login(HttpSession session) {
+    public ResponseEntity<Map<String, Object>> login(HttpSession session) {
         if (sessionManager.isUserConnectedAsMerchant(session)) {
-            return "redirect:/merchant/dashboard";
+            Map<String, Object> response = new HashMap<>();
+            response.put("url", "/merchant/dashboard");
+            return new ResponseEntity<>(response, HttpStatus.FOUND);
+        } else {
+            Map<String, Object> response = new HashMap<>();
+            response.put("url", "/merchant/login");
+            return new ResponseEntity<>(response, HttpStatus.OK);
         }
-        return "merchant/login";
     }
 
     @PostMapping("/login")
-    public String login(@RequestParam String email, @RequestParam String password, HttpSession session) {
+    public ResponseEntity<Map<String, Object>> login(@RequestParam String email, @RequestParam String password, HttpSession session) {
         MerchantResponseDTO merchantResponseDTO = merchantService.getMerchantByEmail(email);
         if (merchantResponseDTO != null && userService.verifyPassword(password, merchantResponseDTO.getPassword())) {
-            sessionManager.setUserAsConnected(email, "merchant", session);
-            return "redirect:/merchant/dashboard";
+            sessionManager.setUserAsConnected(email, String.valueOf(UserTypes.merchant), session);
+            Map<String, Object> response = new HashMap<>();
+            response.put("url", "/merchant/dashboard");
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } else {
+            Map<String, Object> response = new HashMap<>();
+            response.put("error", "Identifiant ou mot de passe incorrect");
+            return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
         }
-        return "redirect:/merchant/login?error";
     }
 
     @GetMapping("/register")
-    public String register() {
-        return "merchant/register";
+    public ResponseEntity<Map<String, Object>> register() {
+        Map<String, Object> response = new HashMap<>();
+        response.put("url", "/merchant/register");
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    @PostMapping("/registerMerchant") // Renommée en "registerMerchant"
-    public String registerMerchant(@ModelAttribute("user") MerchantRequestDTO merchant) {
+    @PostMapping("/registerMerchant")
+    public ResponseEntity<Map<String, Object>> registerMerchant(@ModelAttribute("merchant") MerchantRequestDTO merchant) {
         MerchantResponseDTO mrd = merchantService.createMerchant(merchant);
+        Map<String, Object> response = new HashMap<>();
         if (mrd == null) {
-            return "redirect:/merchant/register?error";
+            response.put("error", "L'inscription a échoué. Veuillez réessayer.");
+            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+        } else {
+            response.put("url", "/merchant/login");
+            return new ResponseEntity<>(response, HttpStatus.FOUND);
         }
-        return "redirect:/merchant/login";
     }
 
     @GetMapping("/dashboard")
-    public String dashboard(HttpSession session) {
+    public ResponseEntity<Map<String, Object>> dashboard(HttpSession session) {
         if (session != null && sessionManager.getConnectedUserType(session) != null && sessionManager.getConnectedUserEmail(session) != null && sessionManager.getConnectedUserType(session).equals("merchant")) {
-            return "merchant/dashboard";
+            Map<String, Object> response = new HashMap<>();
+            response.put("url", "/merchant/dashboard");
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } else {
+            Map<String, Object> response = new HashMap<>();
+            response.put("url", "/merchant/login");
+            return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
         }
-        return "redirect:/merchant/login";
     }
 
     @GetMapping("/logout")
-    public String logout(HttpSession session) {
+    public ResponseEntity<Map<String, Object>> logout(HttpSession session) {
         System.out.println("Logout merchant...");
         sessionManager.setUserAsDisconnected(session);
-        return "redirect:/merchant/login";
+        Map<String, Object> response = new HashMap<>();
+        response.put("url", "/merchant/login");
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 }

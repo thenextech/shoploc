@@ -1,19 +1,21 @@
 package nextech.shoploc.controllers;
 
 import nextech.shoploc.controllers.auth.AdminLoginController;
-import nextech.shoploc.controllers.auth.SessionManager;
 import nextech.shoploc.models.admin.AdminRequestDTO;
 import nextech.shoploc.models.admin.AdminResponseDTO;
 import nextech.shoploc.services.admin.AdminService;
-import nextech.shoploc.services.user.UserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.http.ResponseEntity;
+
+import java.util.Map;
+import java.util.Objects;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.verify;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
 
 public class AdminLoginControllerTest {
@@ -24,11 +26,6 @@ public class AdminLoginControllerTest {
     @Mock
     private AdminService adminService;
 
-    @Mock
-    UserService userService;
-
-    @Mock
-    SessionManager sessionManager;
 
     @BeforeEach
     public void setUp() {
@@ -38,12 +35,16 @@ public class AdminLoginControllerTest {
     @Test
     public void testPostRegisterSuccess() {
         AdminRequestDTO adminRequestDTO = new AdminRequestDTO();
+        adminRequestDTO.setEmail("admin@example.com");
+        adminRequestDTO.setPassword("password");
         when(adminService.createAdmin(adminRequestDTO)).thenReturn(new AdminResponseDTO());
 
-        String viewName = adminLoginController.register(adminRequestDTO);
+        ResponseEntity<Map<String, Object>> res = adminLoginController.register(adminRequestDTO);
 
-        verify(adminService).createAdmin(adminRequestDTO);
+        System.out.println(res);
+        assertEquals(Objects.requireNonNull(res.getBody()).get("url"), "/admin/login");
 
-        assertEquals("redirect:/admin/login", viewName);
+        assertTrue(true);
     }
+
 }

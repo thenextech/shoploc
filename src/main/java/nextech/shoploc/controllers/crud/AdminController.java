@@ -10,6 +10,8 @@ import nextech.shoploc.services.admin.AdminService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -20,6 +22,7 @@ import java.util.List;
 public class AdminController {
 
     private final AdminService adminService;
+    PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     @Autowired
     public AdminController(AdminService adminService) {
@@ -29,6 +32,12 @@ public class AdminController {
     @PostMapping("/create")
     @ApiOperation(value = "Create an admin", notes = "Creates a new admin")
     public ResponseEntity<AdminResponseDTO> createAdmin(@RequestBody AdminRequestDTO adminRequestDTO) {
+        // Hasher le mot de passe avec BCrypt
+        String hashedPassword = passwordEncoder.encode(adminRequestDTO.getPassword());
+
+        // Remplacez le mot de passe en clair par le mot de passe haché
+        adminRequestDTO.setPassword(hashedPassword);
+
         AdminResponseDTO createdAdmin = adminService.createAdmin(adminRequestDTO);
         if (createdAdmin != null) {
             return new ResponseEntity<>(createdAdmin, HttpStatus.CREATED);

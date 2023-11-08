@@ -1,23 +1,17 @@
 package nextech.shoploc.controllers.auth;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-
 import jakarta.servlet.http.HttpSession;
+import nextech.shoploc.domains.enums.UserTypes;
 import nextech.shoploc.models.client.ClientRequestDTO;
 import nextech.shoploc.models.client.ClientResponseDTO;
 import nextech.shoploc.services.client.ClientService;
-import nextech.shoploc.services.user.UserService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/client")
@@ -27,58 +21,78 @@ public class ClientLoginController {
 
     @Autowired
     private ClientService clientService;
-    @Autowired
-    private UserService userService;
+
     @Autowired
     private SessionManager sessionManager;
 
     @GetMapping("/login")
-    public String login(HttpSession session) {
+    public ResponseEntity<Map<String, Object>> login(HttpSession session) {
         if (sessionManager.isUserConnectedAsClient(session)) {
-            return "redirect:/client/dashboard";
+            Map<String, Object> response = new HashMap<>();
+            response.put("url", "/client/dashboard");
+            return new ResponseEntity<>(response, HttpStatus.FOUND);
+        } else {
+            Map<String, Object> response = new HashMap<>();
+            response.put("url", "/client/login");
+            return new ResponseEntity<>(response, HttpStatus.OK);
         }
-        return "client/login";
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestParam String email, @RequestParam String password, HttpSession session) {
-    	ClientResponseDTO crd = clientService.loginClient(email, password);
+    public ResponseEntity<Map<String, Object>> login(@RequestParam String email, @RequestParam String password, HttpSession session) {
+        ClientResponseDTO crd = clientService.loginClient(email, password);
         if (crd != null) {
-        	sessionManager.setUserAsConnected(email, "client", session);
-        	return ResponseEntity.ok(crd.getId());
+            sessionManager.setUserAsConnected(email, String.valueOf(UserTypes.client), session);
+            Map<String, Object> response = new HashMap<>();
+            response.put("object", crd);
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } else {
+            Map<String, Object> response = new HashMap<>();
+            response.put("error", "Identifiant ou mot de passe incorrect");
+            return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
         }
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Identifiant ou mot de passe incorrect");
     }
 
     @GetMapping("/register")
-    public String register() {
-        return "client/register";
+    public ResponseEntity<Map<String, Object>> register() {
+        Map<String, Object> response = new HashMap<>();
+        response.put("url", "/client/register");
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @PostMapping("/register")
-    public ResponseEntity<?> register(@ModelAttribute("user") ClientRequestDTO client) {
+    public ResponseEntity<Map<String, Object>> register(@ModelAttribute("user") ClientRequestDTO client) {
         ClientResponseDTO crd = clientService.createClient(client);
         Map<String, Object> response = new HashMap<>();
         if (crd == null) {
-        	String errorMessage = "L'inscription a échoué. Veuillez réessayer.";
-            return new ResponseEntity<>(errorMessage, HttpStatus.BAD_REQUEST);
+            response.put("error", "L'inscription a échoué. Veuillez réessayer.");
+            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+        } else {
+            response.put("url", "/client/login");
+            return new ResponseEntity<>(response, HttpStatus.FOUND);
         }
-        response.put("url", crd);
-        return new ResponseEntity<>(response, HttpStatus.FOUND);
     }
 
     @GetMapping("/dashboard")
-    public String dashboard(HttpSession session) {
+    public ResponseEntity<Map<String, Object>> dashboard(HttpSession session) {
         if (session != null && sessionManager.getConnectedUserType(session) != null && sessionManager.getConnectedUserEmail(session) != null && sessionManager.getConnectedUserType(session).equals("client")) {
-            return "client/dashboard";
+            Map<String, Object> response = new HashMap<>();
+            response.put("url", "/client/dashboard");
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } else {
+            Map<String, Object> response = new HashMap<>();
+            response.put("url", "/client/login");
+            return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
         }
-        return "redirect:/client/login";
     }
 
     @GetMapping("/logout")
-    public String logout(HttpSession session) {
+    public ResponseEntity<Map<String, Object>> logout(HttpSession session) {
         System.out.println("Logout client...");
         sessionManager.setUserAsDisconnected(session);
-        return "redirect:/client/login";
+        Map<String, Object> response = new HashMap<>();
+        response.put("url", "/client/login");
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 }
+
