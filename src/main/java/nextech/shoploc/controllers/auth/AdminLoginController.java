@@ -59,7 +59,7 @@ public class AdminLoginController {
         if (adminResponseDTO != null && userService.verifyPassword(password, adminResponseDTO.getPassword())) {
             String verificationCode = verificationCodeService.generateVerificationCode();
             emailSenderService.sendHtmlEmail(email, verificationCode);
-            sessionManager.setUserToVerify(email, UserTypes.admin.toString(), session, verificationCode);
+            sessionManager.setUserToVerify(email, UserTypes.admin.toString(),verificationCode,session);
             Map<String, Object> response = new HashMap<>();
             response.put("url", "/admin/verify");
             return new ResponseEntity<>(response, HttpStatus.OK);
@@ -117,6 +117,10 @@ public class AdminLoginController {
     @PostMapping("/verify")
     public ResponseEntity<Map<String, Object>> verify(@RequestParam String code, HttpSession session) {
         String savedCode = sessionManager.getVerificationCode(session);
+        System.out.println("savedCode: "+savedCode);
+        System.out.println("code : "+code );
+        System.out.println("equals : "+code.equals(savedCode) );
+
         if (code.equals(savedCode)) {
             // Code de vérification valide, accorder une session
             sessionManager.setUserAsConnected(sessionManager.getConnectedUserEmail(session), String.valueOf(UserTypes.admin), session);

@@ -19,7 +19,7 @@ public class SessionManager {
         session.setAttribute(IS_CONNECTED_ATTRIBUTE, true);
     }
 
-    public void setUserToVerify(String userEmail, String userType, HttpSession session,String verificationCode) {
+    public void setUserToVerify(String userEmail, String userType,String verificationCode,HttpSession session) {
         session.setAttribute(USER_EMAIL_ATTRIBUTE, userEmail);
         session.setAttribute(USER_TYPE_ATTRIBUTE, userType);
         session.setAttribute(IS_CONNECTED_ATTRIBUTE, false);
@@ -31,8 +31,9 @@ public class SessionManager {
     }
 
     public boolean isUserConnected(HttpSession session) {
-        return (boolean) session.getAttribute(IS_CONNECTED_ATTRIBUTE);
+        return session.getAttribute(IS_CONNECTED_ATTRIBUTE) != null;
     }
+
 
     public boolean isUserConnectedAsAdmin(HttpSession session) {
         return isUserConnected(session) && UserTypes.admin.toString().equals(session.getAttribute(USER_TYPE_ATTRIBUTE));
@@ -55,6 +56,6 @@ public class SessionManager {
     }
 
     public String getVerificationCode(HttpSession session) {
-        return (String) session.getAttribute("verificationCode");
+        return (String) session.getAttribute(CODE_VERIFICATION_ATTRIBUTE);
     }
 }
