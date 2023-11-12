@@ -13,7 +13,7 @@ public class EmailSenderService {
     @Autowired
     private JavaMailSender emailSender;
 
-    public void sendHtmlEmail(String to, String subject, String verificationCode) throws MessagingException {
+    public void sendHtmlEmail(String to, String verificationCode) throws MessagingException {
         MimeMessage message = emailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(message, true);
 
@@ -56,7 +56,7 @@ public class EmailSenderService {
                     "</html>\n";
 
             helper.setTo(to);
-            helper.setSubject(subject);
+            helper.setSubject("Code de vérification Shoploc");
             helper.setText(htmlContent, true); // Définit le contenu comme HTML
 
             emailSender.send(message);

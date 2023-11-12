@@ -13,7 +13,7 @@ public class CreatorSessionController {
 
     @GetMapping("/admin")
     public void loginAdmin(HttpServletRequest request) {
-        // Ouvrir une session manuellement pour une admin
+        // Ouvrir une session manuellement pour un admin
         HttpSession session = request.getSession(true);
         session.setAttribute("userType", "admin");
         session.setAttribute("userEmail", "admin@nextech.com");

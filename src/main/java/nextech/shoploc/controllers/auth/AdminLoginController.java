@@ -52,23 +52,13 @@ public class AdminLoginController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<Map<String, Object>> login(@RequestParam String email, @RequestParam String password, HttpSession session) throws MessagingException {
-
+    public ResponseEntity<Map<String, Object>> login(@RequestParam String email,
+                                                     @RequestParam String password, HttpSession session) throws MessagingException {
         AdminResponseDTO adminResponseDTO = adminService.getAdminByEmail(email);
         if (adminResponseDTO != null && userService.verifyPassword(password, adminResponseDTO.getPassword())) {
-            // Générez un code de vérification et envoyez-le par e-mail
             String verificationCode = verificationCodeService.generateVerificationCode();
-            // Construisez le contenu HTML de l'e-mail
-
-
-            // Envoyez l'e-mail
-            String subject = "Code de vérification Shoploc";
-            emailSenderService.sendHtmlEmail(email, subject, verificationCode);
-
-            // Stockez le code de vérification dans la session
+            emailSenderService.sendHtmlEmail(email, verificationCode);
             session.setAttribute("verificationCode", verificationCode);
-
-            // Redirigez l'utilisateur vers la page de vérification
             Map<String, Object> response = new HashMap<>();
             response.put("url", "/admin/verify");
             return new ResponseEntity<>(response, HttpStatus.OK);
@@ -125,10 +115,8 @@ public class AdminLoginController {
     public ResponseEntity<Map<String, Object>> verify(@RequestParam String code, HttpSession session) {
         String savedCode = (String) session.getAttribute("verificationCode");
         if (code.equals(savedCode)) {
-            // Code de vérification valide, accordez une session
+            // Code de vérification valide, accorder une session
             sessionManager.setUserAsConnected(sessionManager.getConnectedUserEmail(session), String.valueOf(UserTypes.admin), session);
-
-            // Redirigez l'utilisateur vers le tableau de bord
             Map<String, Object> response = new HashMap<>();
             response.put("url", "/admin/dashboard");
             return new ResponseEntity<>(response, HttpStatus.OK);
