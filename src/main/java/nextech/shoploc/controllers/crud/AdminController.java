@@ -18,7 +18,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/admins")
-@Api(tags = "Admins", description = "Operations on admins")
+@Api(tags = "Admins")
 public class AdminController {
 
     private final AdminService adminService;

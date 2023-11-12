@@ -36,10 +36,6 @@ public class SessionManager {
         return session.getAttribute("userEmail") != null && session.getAttribute("userType").equals(UserTypes.merchant);
     }
 
-    public boolean isUserConnected(HttpSession session, String userType) {
-        Object sessionUserType = session.getAttribute("userType");
-        return sessionUserType != null && sessionUserType.equals(userType);
-    }
 
 
 }

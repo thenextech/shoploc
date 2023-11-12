@@ -13,7 +13,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/clients")
-@Api(tags = "Clients", description = "Operations on clients")
+@Api(tags = "Clients")
 public class ClientController {
 
     private final ClientService clientService;

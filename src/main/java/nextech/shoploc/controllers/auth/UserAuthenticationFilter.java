@@ -21,7 +21,7 @@ public class UserAuthenticationFilter implements Filter {
     private SessionManager sessionManager;
 
     @Override
-    public void init(FilterConfig filterConfig) throws ServletException {
+    public void init(FilterConfig filterConfig) {
         // Initialisation du filtre
     }
 
@@ -76,10 +76,6 @@ public class UserAuthenticationFilter implements Filter {
     @Override
     public void destroy() {
         // Nettoyer le filtre
-    }
-
-    private boolean isValidUserType(String userType) {
-        return userType != null && (userType.equals("admin") || userType.equals("merchant") || userType.equals("client"));
     }
 
     private boolean isUrlToProtect(String url) {

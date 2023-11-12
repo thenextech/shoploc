@@ -1,5 +1,8 @@
 package nextech.shoploc.domains.enums;
 
+import lombok.Getter;
+
+@Getter
 public enum UrlToProtect {
     ADMIN("/admins/"),
     CLIENT("/clients/"),
@@ -11,7 +14,4 @@ public enum UrlToProtect {
         this.url = url;
     }
 
-    public String getUrl() {
-        return url;
-    }
 }
