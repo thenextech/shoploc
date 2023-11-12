@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/merchants")
@@ -61,5 +62,10 @@ public class MerchantController {
         return new ResponseEntity<>(merchants, HttpStatus.OK);
     }
 
-    // Ajoutez d'autres méthodes de contrôleur si nécessaire.
+    @PutMapping("/{id}")
+    @ApiOperation(value = "Update merchant", notes = "Update an existing merchant by their ID")
+    public ResponseEntity<MerchantResponseDTO> updateUser(@PathVariable Long id, @RequestBody MerchantRequestDTO merchantRequestDTO) {
+        Optional<MerchantResponseDTO> merchantResponseDTO = Optional.ofNullable(merchantService.updateMerchant(id, merchantRequestDTO));
+        return merchantResponseDTO.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+    }
 }

@@ -32,10 +32,11 @@ public class EmailSenderService {
                     "        <img src=\"https://drive.google.com/uc?export=view&id=1PzzRBR78crqMa-T1nb1U1zeIhRgVNlnu\" alt=\"Logo Shoploc\" style=\"width: 100px; margin: 0 auto; display: block;\">\n" +
                     "      </td>\n" +
                     "    </tr>\n" +
+                    "    <hr/>"+
                     "    <tr>\n" +
                     "      <td style=\"text-align: center; padding: 20px 0;\">\n" +
                     "        <p>Votre code de vérification Shoploc est :</p>\n" +
-                    "        <p style=\"font-size: 30px; font-weight: bold; color: #3C24D1;\"> "+verificationCode+ "</p>\n" +
+                    "        <p style=\"font-size: 30px;font-weight: bold; color: #3C24D1; margin: 0; border: 1px  solid #3C24D1;background: rgba(59, 36, 209, 0.15); padding: 10px; display: inline-block;\"> "+verificationCode+ "</p>\n" +
                     "        <p>Merci de ne pas communiquer ce code à qui que ce soit.</p>\n" +
                     "        <p>Pour toute question, contactez l'équipe Shoploc :</p>\n" +
                     "        <p><a href=\"mailto:contact@shoploc.com\">contact@shoploc.com</a></p>\n" +
@@ -49,7 +50,6 @@ public class EmailSenderService {
                     "  </table>\n" +
                     "\n" +
                     "  <script>\n" +
-                    "    // Code JavaScript pour afficher l'année actuelle\n" +
                     "    document.getElementById(\"currentYear\").textContent = new Date().getFullYear();\n" +
                     "  </script>\n" +
                     "</body>\n" +

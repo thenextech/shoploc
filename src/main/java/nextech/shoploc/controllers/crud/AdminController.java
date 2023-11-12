@@ -15,6 +15,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/admins")
@@ -75,6 +76,13 @@ public class AdminController {
     public ResponseEntity<List<AdminResponseDTO>> getAllAdmins() {
         List<AdminResponseDTO> admins = adminService.getAllAdmins();
         return new ResponseEntity<>(admins, HttpStatus.OK);
+    }
+
+    @PutMapping("/{id}")
+    @ApiOperation(value = "Update admin", notes = "Update an existing admin by their ID")
+    public ResponseEntity<AdminResponseDTO> updateUser(@PathVariable Long id, @RequestBody AdminResponseDTO adminRequestDTO) {
+        Optional<AdminResponseDTO> adminResponseDTO = Optional.ofNullable(adminService.updateAdmin(id, adminRequestDTO));
+        return adminResponseDTO.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
 }
