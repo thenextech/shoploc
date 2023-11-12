@@ -2,10 +2,10 @@ package nextech.shoploc.controllers.auth;
 
 import jakarta.mail.MessagingException;
 import jakarta.servlet.http.HttpSession;
-import nextech.shoploc.domains.enums.MerchantStatus;
 import nextech.shoploc.domains.enums.UserTypes;
 import nextech.shoploc.models.merchant.MerchantRequestDTO;
 import nextech.shoploc.models.merchant.MerchantResponseDTO;
+import nextech.shoploc.models.user.UserResponseDTO;
 import nextech.shoploc.services.auth.EmailSenderService;
 import nextech.shoploc.services.auth.VerificationCodeService;
 import nextech.shoploc.services.merchant.MerchantService;
@@ -23,9 +23,10 @@ import java.util.Map;
 public class MerchantLoginController {
 
     @Autowired
-    private MerchantService merchantService;
-    @Autowired
     private UserService userService;
+    @Autowired
+    private MerchantService merchantService;
+
     @Autowired
     private SessionManager sessionManager;
     @Autowired
@@ -73,11 +74,10 @@ public class MerchantLoginController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<Map<String, Object>> registerMerchant(@ModelAttribute("merchant") MerchantRequestDTO merchant) {
-        merchant.setStatus(MerchantStatus.INACTIVE);
-        MerchantResponseDTO mrd = merchantService.createMerchant(merchant);
+    public ResponseEntity<Map<String, Object>> register(@ModelAttribute("user") MerchantRequestDTO merchant) {
+        MerchantResponseDTO crd = merchantService.createMerchant(merchant);
         Map<String, Object> response = new HashMap<>();
-        if (mrd == null) {
+        if (crd == null) {
             response.put("error", "L'inscription a échoué. Veuillez réessayer.");
             return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
         } else {
@@ -88,12 +88,14 @@ public class MerchantLoginController {
 
     @GetMapping("/dashboard")
     public ResponseEntity<Map<String, Object>> dashboard(HttpSession session) {
-        if (session != null && sessionManager.getConnectedUserType(session) != null && sessionManager.getConnectedUserEmail(session) != null && sessionManager.getConnectedUserType(session).equals("merchant")) {
+        if (sessionManager.isUserConnectedAsMerchant(session)) {
             Map<String, Object> response = new HashMap<>();
-            response.put("url", "/merchant/dashboard");
+            UserResponseDTO merchant = userService.getUserByEmail(sessionManager.getConnectedUserEmail(session));
+            response.put("object", merchant);
             return new ResponseEntity<>(response, HttpStatus.OK);
         } else {
             Map<String, Object> response = new HashMap<>();
+            response.put("error", "Merci de vous authentifier pour accéder à cette ressource.");
             response.put("url", "/merchant/login");
             return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
         }
@@ -110,7 +112,7 @@ public class MerchantLoginController {
 
     @PostMapping("/verify")
     public ResponseEntity<Map<String, Object>> verify(@RequestParam String code, HttpSession session) {
-        String savedCode = (String) session.getAttribute("verificationCode");
+        String savedCode = sessionManager.getVerificationCode(session);
         if (code.equals(savedCode)) {
             // Code de vérification valide, accorder une session
             sessionManager.setUserAsConnected(sessionManager.getConnectedUserEmail(session), String.valueOf(UserTypes.merchant), session);
@@ -124,5 +126,5 @@ public class MerchantLoginController {
             return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
         }
     }
-
 }
+

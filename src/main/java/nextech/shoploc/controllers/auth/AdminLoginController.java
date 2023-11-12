@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import nextech.shoploc.domains.enums.UserTypes;
 import nextech.shoploc.models.admin.AdminRequestDTO;
 import nextech.shoploc.models.admin.AdminResponseDTO;
+import nextech.shoploc.models.user.UserResponseDTO;
 import nextech.shoploc.services.admin.AdminService;
 import nextech.shoploc.services.auth.EmailSenderService;
 import nextech.shoploc.services.auth.VerificationCodeService;
@@ -58,7 +59,7 @@ public class AdminLoginController {
         if (adminResponseDTO != null && userService.verifyPassword(password, adminResponseDTO.getPassword())) {
             String verificationCode = verificationCodeService.generateVerificationCode();
             emailSenderService.sendHtmlEmail(email, verificationCode);
-            session.setAttribute("verificationCode", verificationCode);
+            sessionManager.setUserToVerify(email, UserTypes.admin.toString(), session, verificationCode);
             Map<String, Object> response = new HashMap<>();
             response.put("url", "/admin/verify");
             return new ResponseEntity<>(response, HttpStatus.OK);
@@ -91,12 +92,14 @@ public class AdminLoginController {
 
     @GetMapping("/dashboard")
     public ResponseEntity<Map<String, Object>> dashboard(HttpSession session) {
-        if (session != null && sessionManager.getConnectedUserType(session) != null && sessionManager.getConnectedUserEmail(session) != null && sessionManager.getConnectedUserType(session).equals("admin")) {
+        if (sessionManager.isUserConnectedAsAdmin(session)) {
             Map<String, Object> response = new HashMap<>();
-            response.put("url", "/admin/dashboard");
+            UserResponseDTO admin = userService.getUserByEmail(sessionManager.getConnectedUserEmail(session));
+            response.put("object", admin);
             return new ResponseEntity<>(response, HttpStatus.OK);
         } else {
             Map<String, Object> response = new HashMap<>();
+            response.put("error", "Merci de vous authentifier pour accéder à cette ressource.");
             response.put("url", "/admin/login");
             return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
         }
@@ -113,7 +116,7 @@ public class AdminLoginController {
 
     @PostMapping("/verify")
     public ResponseEntity<Map<String, Object>> verify(@RequestParam String code, HttpSession session) {
-        String savedCode = (String) session.getAttribute("verificationCode");
+        String savedCode = sessionManager.getVerificationCode(session);
         if (code.equals(savedCode)) {
             // Code de vérification valide, accorder une session
             sessionManager.setUserAsConnected(sessionManager.getConnectedUserEmail(session), String.valueOf(UserTypes.admin), session);

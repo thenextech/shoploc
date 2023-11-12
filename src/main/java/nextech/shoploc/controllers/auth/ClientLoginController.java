@@ -5,6 +5,7 @@ import jakarta.servlet.http.HttpSession;
 import nextech.shoploc.domains.enums.UserTypes;
 import nextech.shoploc.models.client.ClientRequestDTO;
 import nextech.shoploc.models.client.ClientResponseDTO;
+import nextech.shoploc.models.user.UserResponseDTO;
 import nextech.shoploc.services.auth.EmailSenderService;
 import nextech.shoploc.services.auth.VerificationCodeService;
 import nextech.shoploc.services.client.ClientService;
@@ -87,12 +88,14 @@ public class ClientLoginController {
 
     @GetMapping("/dashboard")
     public ResponseEntity<Map<String, Object>> dashboard(HttpSession session) {
-        if (session != null && sessionManager.getConnectedUserType(session) != null && sessionManager.getConnectedUserEmail(session) != null && sessionManager.getConnectedUserType(session).equals("client")) {
+        if (sessionManager.isUserConnectedAsClient(session)) {
             Map<String, Object> response = new HashMap<>();
-            response.put("url", "/client/dashboard");
+            UserResponseDTO client = userService.getUserByEmail(sessionManager.getConnectedUserEmail(session));
+            response.put("object", client);
             return new ResponseEntity<>(response, HttpStatus.OK);
         } else {
             Map<String, Object> response = new HashMap<>();
+            response.put("error", "Merci de vous authentifier pour accéder à cette ressource.");
             response.put("url", "/client/login");
             return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
         }
@@ -109,7 +112,7 @@ public class ClientLoginController {
 
     @PostMapping("/verify")
     public ResponseEntity<Map<String, Object>> verify(@RequestParam String code, HttpSession session) {
-        String savedCode = (String) session.getAttribute("verificationCode");
+        String savedCode = sessionManager.getVerificationCode(session);
         if (code.equals(savedCode)) {
             // Code de vérification valide, accorder une session
             sessionManager.setUserAsConnected(sessionManager.getConnectedUserEmail(session), String.valueOf(UserTypes.client), session);
