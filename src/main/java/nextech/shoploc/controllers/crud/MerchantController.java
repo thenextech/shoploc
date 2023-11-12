@@ -16,7 +16,7 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/merchants")
-@Api(tags = "Merchants", description = "Operations on merchants")
+@Api(tags = "Merchants")
 public class MerchantController {
 
     private final MerchantService merchantService;
