@@ -66,10 +66,10 @@ public class ClientController {
         return ResponseEntity.noContent().build();
     }
 
-    @PutMapping("/{id}")
+    /*@PutMapping("/{id}")
     @ApiOperation(value = "Update client", notes = "Update an existing client by their ID")
     public ResponseEntity<ClientResponseDTO> updateUser(@PathVariable Long id, @RequestBody ClientResponseDTO clientRequestDTO) {
         Optional<ClientResponseDTO> clientResponseDTO = Optional.ofNullable(clientService.updateClient(id, clientRequestDTO));
         return clientResponseDTO.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
-    }
+    }*/
 }

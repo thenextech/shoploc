@@ -1,5 +1,18 @@
 package nextech.shoploc.controllers.auth;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
 import jakarta.mail.MessagingException;
 import jakarta.servlet.http.HttpSession;
 import nextech.shoploc.domains.enums.UserTypes;
@@ -10,13 +23,7 @@ import nextech.shoploc.services.auth.EmailSenderService;
 import nextech.shoploc.services.auth.VerificationCodeService;
 import nextech.shoploc.services.client.ClientService;
 import nextech.shoploc.services.user.UserService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.HashMap;
-import java.util.Map;
+import nextech.shoploc.utils.exceptions.NotFoundException;
 
 @RestController
 @RequestMapping("/client")
@@ -39,31 +46,39 @@ public class ClientLoginController {
         if (sessionManager.isUserConnectedAsClient(session)) {
             Map<String, Object> response = new HashMap<>();
             response.put("url", "/client/dashboard");
-            return new ResponseEntity<>(response, HttpStatus.FOUND);
+            return new ResponseEntity<>(response, HttpStatus.OK);
         } else {
             Map<String, Object> response = new HashMap<>();
             response.put("url", "/client/login");
-            return new ResponseEntity<>(response, HttpStatus.OK);
+            return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
         }
     }
 
     @PostMapping("/login")
     public ResponseEntity<Map<String, Object>> login(@RequestParam String email,
                                                      @RequestParam String password,
-                                                     HttpSession session) throws MessagingException {
-        ClientResponseDTO clientResponseDTO = clientService.getClientByEmail(email);
-        if (clientResponseDTO != null && userService.verifyPassword(password, clientResponseDTO.getPassword())) {
-            String verificationCode = verificationCodeService.generateVerificationCode();
-            emailSenderService.sendHtmlEmail(email, verificationCode);
-            session.setAttribute("verificationCode", verificationCode);
-            Map<String, Object> response = new HashMap<>();
-            response.put("url", "/client/verify");
-            return new ResponseEntity<>(response, HttpStatus.OK);
-        } else {
-            Map<String, Object> response = new HashMap<>();
+                                                     HttpSession session) throws MessagingException, NotFoundException {
+        try {
+        	ClientResponseDTO clientResponseDTO = clientService.getClientByEmail(email);
+            if (clientResponseDTO != null && userService.verifyPassword(password, clientResponseDTO.getPassword())) {
+                String verificationCode = verificationCodeService.generateVerificationCode();
+                emailSenderService.sendHtmlEmail(email, verificationCode);
+                session.setAttribute("verificationCode", verificationCode);
+                Map<String, Object> response = new HashMap<>();
+                response.put("url", "/client/verify");
+                return new ResponseEntity<>(response, HttpStatus.OK);
+            } else {
+                Map<String, Object> response = new HashMap<>();
+                response.put("error", "Identifiant ou mot de passe incorrect");
+                return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
+            }        	
+        } catch(Exception e) {
+        	e.printStackTrace();
+        	Map<String, Object> response = new HashMap<>();
             response.put("error", "Identifiant ou mot de passe incorrect");
             return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
         }
+    	
     }
 
     @GetMapping("/register")
@@ -82,7 +97,7 @@ public class ClientLoginController {
             return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
         } else {
             response.put("url", "/client/login");
-            return new ResponseEntity<>(response, HttpStatus.FOUND);
+            return new ResponseEntity<>(response, HttpStatus.OK);
         }
     }
 
