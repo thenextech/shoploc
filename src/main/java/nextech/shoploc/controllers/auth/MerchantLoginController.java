@@ -4,10 +4,10 @@ import jakarta.mail.MessagingException;
 import jakarta.servlet.http.HttpSession;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
+import nextech.shoploc.domains.enums.AccountStatus;
 import nextech.shoploc.domains.enums.UserTypes;
 import nextech.shoploc.models.merchant.MerchantRequestDTO;
 import nextech.shoploc.models.merchant.MerchantResponseDTO;
-import nextech.shoploc.models.user.UserResponseDTO;
 import nextech.shoploc.services.auth.EmailSenderService;
 import nextech.shoploc.services.auth.VerificationCodeService;
 import nextech.shoploc.services.merchant.MerchantService;
@@ -41,6 +41,7 @@ public class MerchantLoginController {
     private static final String REGISTER_ERROR = "L'inscription a échoué. Veuillez réessayer.";
     private static final String UNAUTHORIZED_ERROR = "Merci de vous authentifier pour accéder à cette ressource.";
     private static final String VERIFICATION_CODE_ERROR = "Code de vérification incorrect. Veuillez réessayer.";
+    private static final String INACTIVE_ACCOUNT_ERROR = "Votre compte n'est pas activé.";
 
 
     @GetMapping("/login")
@@ -83,6 +84,7 @@ public class MerchantLoginController {
 
     @PostMapping("/register")
     public ResponseEntity<Map<String, Object>> register(@ModelAttribute("merchant") MerchantRequestDTO merchant) {
+        merchant.setStatus(AccountStatus.INACTIVE);
         MerchantResponseDTO ard = merchantService.createMerchant(merchant);
         Map<String, Object> response = new HashMap<>();
         if (ard == null) {
@@ -96,13 +98,16 @@ public class MerchantLoginController {
 
     @GetMapping("/dashboard")
     public ResponseEntity<Map<String, Object>> dashboard(HttpSession session) {
+        Map<String, Object> response = new HashMap<>();
         if (sessionManager.isUserConnectedAsMerchant(session)) {
-            Map<String, Object> response = new HashMap<>();
-            UserResponseDTO merchant = userService.getUserByEmail(sessionManager.getConnectedUserEmail(session));
-            response.put("object", merchant);
+            MerchantResponseDTO merchant = merchantService.getMerchantByEmail(sessionManager.getConnectedUserEmail(session));
+            if (merchant.getStatus().equals(AccountStatus.INACTIVE)) {
+                response.put("error", INACTIVE_ACCOUNT_ERROR);
+            } else {
+                response.put("object", merchant);
+            }
             return new ResponseEntity<>(response, HttpStatus.OK);
         } else {
-            Map<String, Object> response = new HashMap<>();
             response.put("error", UNAUTHORIZED_ERROR);
             response.put("url", "/merchant/login");
             return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);

@@ -4,10 +4,11 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import nextech.shoploc.domains.enums.MerchantStatus;
+import nextech.shoploc.domains.enums.AccountStatus;
 
 import java.util.ArrayList;
 import java.util.List;
+
 @Entity
 @Data
 @NoArgsConstructor
@@ -17,7 +18,7 @@ public class Merchant extends User {
     @Column(name = "business_name")
     private String businessName;
 
-    @Column(name = "address") 
+    @Column(name = "address")
     private String address;
 
     @Column(name = "phone_number")
@@ -25,7 +26,7 @@ public class Merchant extends User {
 
     @Column
     @Enumerated(EnumType.STRING)
-    private MerchantStatus status;
+    private AccountStatus status;
 
     @OneToMany(mappedBy = "merchant", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<MerchantSchedule> schedules = new ArrayList<>();
