@@ -37,6 +37,10 @@ public class AdminLoginController {
     private VerificationCodeService verificationCodeService;
     @Autowired
     private EmailSenderService emailSenderService;
+    private static final String LOGIN_ERROR = "Identifiant ou mot de passe incorrect";
+    private static final String REGISTER_ERROR = "L'inscription a échoué. Veuillez réessayer.";
+    private static final String UNAUTHORIZED_ERROR = "Merci de vous authentifier pour accéder à cette ressource.";
+    private static final String VERIFICATION_CODE_ERROR = "Code de vérification incorrect. Veuillez réessayer.";
 
 
     @GetMapping("/login")
@@ -59,13 +63,13 @@ public class AdminLoginController {
         if (adminResponseDTO != null && userService.verifyPassword(password, adminResponseDTO.getPassword())) {
             String verificationCode = verificationCodeService.generateVerificationCode();
             emailSenderService.sendHtmlEmail(email, verificationCode);
-            sessionManager.setUserToVerify(email, UserTypes.admin.toString(),verificationCode,session);
+            sessionManager.setUserToVerify(email, UserTypes.admin.toString(), verificationCode, session);
             Map<String, Object> response = new HashMap<>();
             response.put("url", "/admin/verify");
             return new ResponseEntity<>(response, HttpStatus.OK);
         } else {
             Map<String, Object> response = new HashMap<>();
-            response.put("error", "Identifiant ou mot de passe incorrect");
+            response.put("error", LOGIN_ERROR);
             return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
         }
     }
@@ -82,7 +86,7 @@ public class AdminLoginController {
         AdminResponseDTO ard = adminService.createAdmin(admin);
         Map<String, Object> response = new HashMap<>();
         if (ard == null) {
-            response.put("error", "L'inscription a échoué. Veuillez réessayer.");
+            response.put("error", REGISTER_ERROR);
             return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
         } else {
             response.put("url", "/admin/login");
@@ -99,7 +103,7 @@ public class AdminLoginController {
             return new ResponseEntity<>(response, HttpStatus.OK);
         } else {
             Map<String, Object> response = new HashMap<>();
-            response.put("error", "Merci de vous authentifier pour accéder à cette ressource.");
+            response.put("error", UNAUTHORIZED_ERROR);
             response.put("url", "/admin/login");
             return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
         }
@@ -117,9 +121,9 @@ public class AdminLoginController {
     @PostMapping("/verify")
     public ResponseEntity<Map<String, Object>> verify(@RequestParam String code, HttpSession session) {
         String savedCode = sessionManager.getVerificationCode(session);
-        System.out.println("savedCode: "+savedCode);
-        System.out.println("code : "+code );
-        System.out.println("equals : "+code.equals(savedCode) );
+        System.out.println("savedCode: " + savedCode);
+        System.out.println("code : " + code);
+        System.out.println("equals : " + code.equals(savedCode));
 
         if (code.equals(savedCode)) {
             // Code de vérification valide, accorder une session
@@ -130,7 +134,7 @@ public class AdminLoginController {
         } else {
             // Code de vérification incorrect, gérer l'erreur
             Map<String, Object> response = new HashMap<>();
-            response.put("error", "Code de vérification incorrect. Veuillez réessayer.");
+            response.put("error", VERIFICATION_CODE_ERROR);
             return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
         }
     }

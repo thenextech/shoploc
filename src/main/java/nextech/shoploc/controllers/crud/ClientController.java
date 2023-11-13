@@ -10,7 +10,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/clients")
@@ -66,10 +65,4 @@ public class ClientController {
         return ResponseEntity.noContent().build();
     }
 
-    /*@PutMapping("/{id}")
-    @ApiOperation(value = "Update client", notes = "Update an existing client by their ID")
-    public ResponseEntity<ClientResponseDTO> updateUser(@PathVariable Long id, @RequestBody ClientResponseDTO clientRequestDTO) {
-        Optional<ClientResponseDTO> clientResponseDTO = Optional.ofNullable(clientService.updateClient(id, clientRequestDTO));
-        return clientResponseDTO.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
-    }*/
 }

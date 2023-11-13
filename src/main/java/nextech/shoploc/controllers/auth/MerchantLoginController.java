@@ -2,10 +2,12 @@ package nextech.shoploc.controllers.auth;
 
 import jakarta.mail.MessagingException;
 import jakarta.servlet.http.HttpSession;
-import nextech.shoploc.domains.enums.MerchantStatus;
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 import nextech.shoploc.domains.enums.UserTypes;
 import nextech.shoploc.models.merchant.MerchantRequestDTO;
 import nextech.shoploc.models.merchant.MerchantResponseDTO;
+import nextech.shoploc.models.user.UserResponseDTO;
 import nextech.shoploc.services.auth.EmailSenderService;
 import nextech.shoploc.services.auth.VerificationCodeService;
 import nextech.shoploc.services.merchant.MerchantService;
@@ -20,12 +22,14 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/merchant")
+@AllArgsConstructor
+@NoArgsConstructor
 public class MerchantLoginController {
 
     @Autowired
-    private UserService userService;
-    @Autowired
     private MerchantService merchantService;
+    @Autowired
+    private UserService userService;
 
     @Autowired
     private SessionManager sessionManager;
@@ -33,8 +37,10 @@ public class MerchantLoginController {
     private VerificationCodeService verificationCodeService;
     @Autowired
     private EmailSenderService emailSenderService;
-    private static final String INACTIVE_ACCOUNT_ERROR = "Votre compte est inactif.";
+    private static final String LOGIN_ERROR = "Identifiant ou mot de passe incorrect";
+    private static final String REGISTER_ERROR = "L'inscription a échoué. Veuillez réessayer.";
     private static final String UNAUTHORIZED_ERROR = "Merci de vous authentifier pour accéder à cette ressource.";
+    private static final String VERIFICATION_CODE_ERROR = "Code de vérification incorrect. Veuillez réessayer.";
 
 
     @GetMapping("/login")
@@ -52,19 +58,18 @@ public class MerchantLoginController {
 
     @PostMapping("/login")
     public ResponseEntity<Map<String, Object>> login(@RequestParam String email,
-                                                     @RequestParam String password,
-                                                     HttpSession session) throws MessagingException {
+                                                     @RequestParam String password, HttpSession session) throws MessagingException {
         MerchantResponseDTO merchantResponseDTO = merchantService.getMerchantByEmail(email);
         if (merchantResponseDTO != null && userService.verifyPassword(password, merchantResponseDTO.getPassword())) {
             String verificationCode = verificationCodeService.generateVerificationCode();
             emailSenderService.sendHtmlEmail(email, verificationCode);
-            session.setAttribute("verificationCode", verificationCode);
+            sessionManager.setUserToVerify(email, UserTypes.merchant.toString(), verificationCode, session);
             Map<String, Object> response = new HashMap<>();
             response.put("url", "/merchant/verify");
             return new ResponseEntity<>(response, HttpStatus.OK);
         } else {
             Map<String, Object> response = new HashMap<>();
-            response.put("error", "Identifiant ou mot de passe incorrect");
+            response.put("error", LOGIN_ERROR);
             return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
         }
     }
@@ -77,11 +82,11 @@ public class MerchantLoginController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<Map<String, Object>> register(@ModelAttribute("user") MerchantRequestDTO merchant) {
-        MerchantResponseDTO crd = merchantService.createMerchant(merchant);
+    public ResponseEntity<Map<String, Object>> register(@ModelAttribute("merchant") MerchantRequestDTO merchant) {
+        MerchantResponseDTO ard = merchantService.createMerchant(merchant);
         Map<String, Object> response = new HashMap<>();
-        if (crd == null) {
-            response.put("error", "L'inscription a échoué. Veuillez réessayer.");
+        if (ard == null) {
+            response.put("error", REGISTER_ERROR);
             return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
         } else {
             response.put("url", "/merchant/login");
@@ -91,16 +96,13 @@ public class MerchantLoginController {
 
     @GetMapping("/dashboard")
     public ResponseEntity<Map<String, Object>> dashboard(HttpSession session) {
-        Map<String, Object> response = new HashMap<>();
         if (sessionManager.isUserConnectedAsMerchant(session)) {
-            MerchantResponseDTO merchant = merchantService.getMerchantByEmail(sessionManager.getConnectedUserEmail(session));
-            if (merchant.getStatus().equals(MerchantStatus.INACTIVE)) {
-                response.put("error", INACTIVE_ACCOUNT_ERROR);
-            } else {
-                response.put("object", merchant);
-            }
+            Map<String, Object> response = new HashMap<>();
+            UserResponseDTO merchant = userService.getUserByEmail(sessionManager.getConnectedUserEmail(session));
+            response.put("object", merchant);
             return new ResponseEntity<>(response, HttpStatus.OK);
         } else {
+            Map<String, Object> response = new HashMap<>();
             response.put("error", UNAUTHORIZED_ERROR);
             response.put("url", "/merchant/login");
             return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
@@ -119,6 +121,10 @@ public class MerchantLoginController {
     @PostMapping("/verify")
     public ResponseEntity<Map<String, Object>> verify(@RequestParam String code, HttpSession session) {
         String savedCode = sessionManager.getVerificationCode(session);
+        System.out.println("savedCode: " + savedCode);
+        System.out.println("code : " + code);
+        System.out.println("equals : " + code.equals(savedCode));
+
         if (code.equals(savedCode)) {
             // Code de vérification valide, accorder une session
             sessionManager.setUserAsConnected(sessionManager.getConnectedUserEmail(session), String.valueOf(UserTypes.merchant), session);
@@ -128,9 +134,9 @@ public class MerchantLoginController {
         } else {
             // Code de vérification incorrect, gérer l'erreur
             Map<String, Object> response = new HashMap<>();
-            response.put("error", "Code de vérification incorrect. Veuillez réessayer.");
+            response.put("error", VERIFICATION_CODE_ERROR);
             return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
         }
     }
-}
 
+}

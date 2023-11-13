@@ -1,20 +1,9 @@
 package nextech.shoploc.controllers.auth;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-
 import jakarta.mail.MessagingException;
 import jakarta.servlet.http.HttpSession;
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 import nextech.shoploc.domains.enums.UserTypes;
 import nextech.shoploc.models.client.ClientRequestDTO;
 import nextech.shoploc.models.client.ClientResponseDTO;
@@ -23,16 +12,24 @@ import nextech.shoploc.services.auth.EmailSenderService;
 import nextech.shoploc.services.auth.VerificationCodeService;
 import nextech.shoploc.services.client.ClientService;
 import nextech.shoploc.services.user.UserService;
-import nextech.shoploc.utils.exceptions.NotFoundException;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/client")
+@AllArgsConstructor
+@NoArgsConstructor
 public class ClientLoginController {
 
     @Autowired
-    private UserService userService;
-    @Autowired
     private ClientService clientService;
+    @Autowired
+    private UserService userService;
 
     @Autowired
     private SessionManager sessionManager;
@@ -40,45 +37,41 @@ public class ClientLoginController {
     private VerificationCodeService verificationCodeService;
     @Autowired
     private EmailSenderService emailSenderService;
+    private static final String LOGIN_ERROR = "Identifiant ou mot de passe incorrect";
+    private static final String REGISTER_ERROR = "L'inscription a échoué. Veuillez réessayer.";
+    private static final String UNAUTHORIZED_ERROR = "Merci de vous authentifier pour accéder à cette ressource.";
+    private static final String VERIFICATION_CODE_ERROR = "Code de vérification incorrect. Veuillez réessayer.";
+
 
     @GetMapping("/login")
     public ResponseEntity<Map<String, Object>> login(HttpSession session) {
         if (sessionManager.isUserConnectedAsClient(session)) {
             Map<String, Object> response = new HashMap<>();
             response.put("url", "/client/dashboard");
-            return new ResponseEntity<>(response, HttpStatus.OK);
+            return new ResponseEntity<>(response, HttpStatus.FOUND);
         } else {
             Map<String, Object> response = new HashMap<>();
             response.put("url", "/client/login");
-            return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
+            return new ResponseEntity<>(response, HttpStatus.OK);
         }
     }
 
     @PostMapping("/login")
     public ResponseEntity<Map<String, Object>> login(@RequestParam String email,
-                                                     @RequestParam String password,
-                                                     HttpSession session) throws MessagingException, NotFoundException {
-        try {
-        	ClientResponseDTO clientResponseDTO = clientService.getClientByEmail(email);
-            if (clientResponseDTO != null && userService.verifyPassword(password, clientResponseDTO.getPassword())) {
-                String verificationCode = verificationCodeService.generateVerificationCode();
-                emailSenderService.sendHtmlEmail(email, verificationCode);
-                session.setAttribute("verificationCode", verificationCode);
-                Map<String, Object> response = new HashMap<>();
-                response.put("url", "/client/verify");
-                return new ResponseEntity<>(response, HttpStatus.OK);
-            } else {
-                Map<String, Object> response = new HashMap<>();
-                response.put("error", "Identifiant ou mot de passe incorrect");
-                return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
-            }        	
-        } catch(Exception e) {
-        	e.printStackTrace();
-        	Map<String, Object> response = new HashMap<>();
-            response.put("error", "Identifiant ou mot de passe incorrect");
+                                                     @RequestParam String password, HttpSession session) throws MessagingException {
+        ClientResponseDTO clientResponseDTO = clientService.getClientByEmail(email);
+        if (clientResponseDTO != null && userService.verifyPassword(password, clientResponseDTO.getPassword())) {
+            String verificationCode = verificationCodeService.generateVerificationCode();
+            emailSenderService.sendHtmlEmail(email, verificationCode);
+            sessionManager.setUserToVerify(email, UserTypes.client.toString(), verificationCode, session);
+            Map<String, Object> response = new HashMap<>();
+            response.put("url", "/client/verify");
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } else {
+            Map<String, Object> response = new HashMap<>();
+            response.put("error", LOGIN_ERROR);
             return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
         }
-    	
     }
 
     @GetMapping("/register")
@@ -89,15 +82,15 @@ public class ClientLoginController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<Map<String, Object>> register(@ModelAttribute("user") ClientRequestDTO client) {
-        ClientResponseDTO crd = clientService.createClient(client);
+    public ResponseEntity<Map<String, Object>> register(@ModelAttribute("client") ClientRequestDTO client) {
+        ClientResponseDTO ard = clientService.createClient(client);
         Map<String, Object> response = new HashMap<>();
-        if (crd == null) {
-            response.put("error", "L'inscription a échoué. Veuillez réessayer.");
+        if (ard == null) {
+            response.put("error", REGISTER_ERROR);
             return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
         } else {
             response.put("url", "/client/login");
-            return new ResponseEntity<>(response, HttpStatus.OK);
+            return new ResponseEntity<>(response, HttpStatus.FOUND);
         }
     }
 
@@ -110,7 +103,7 @@ public class ClientLoginController {
             return new ResponseEntity<>(response, HttpStatus.OK);
         } else {
             Map<String, Object> response = new HashMap<>();
-            response.put("error", "Merci de vous authentifier pour accéder à cette ressource.");
+            response.put("error", UNAUTHORIZED_ERROR);
             response.put("url", "/client/login");
             return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
         }
@@ -128,6 +121,10 @@ public class ClientLoginController {
     @PostMapping("/verify")
     public ResponseEntity<Map<String, Object>> verify(@RequestParam String code, HttpSession session) {
         String savedCode = sessionManager.getVerificationCode(session);
+        System.out.println("savedCode: " + savedCode);
+        System.out.println("code : " + code);
+        System.out.println("equals : " + code.equals(savedCode));
+
         if (code.equals(savedCode)) {
             // Code de vérification valide, accorder une session
             sessionManager.setUserAsConnected(sessionManager.getConnectedUserEmail(session), String.valueOf(UserTypes.client), session);
@@ -137,9 +134,9 @@ public class ClientLoginController {
         } else {
             // Code de vérification incorrect, gérer l'erreur
             Map<String, Object> response = new HashMap<>();
-            response.put("error", "Code de vérification incorrect. Veuillez réessayer.");
+            response.put("error", VERIFICATION_CODE_ERROR);
             return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
         }
     }
-}
 
+}
