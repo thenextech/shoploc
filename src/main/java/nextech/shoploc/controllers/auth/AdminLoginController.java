@@ -1,7 +1,8 @@
 package nextech.shoploc.controllers.auth;
 
 import jakarta.mail.MessagingException;
-import jakarta.servlet.http.HttpSession;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import nextech.shoploc.domains.enums.UserTypes;
@@ -30,22 +31,21 @@ public class AdminLoginController {
     private AdminService adminService;
     @Autowired
     private UserService userService;
-
     @Autowired
     private SessionManager sessionManager;
     @Autowired
     private VerificationCodeService verificationCodeService;
     @Autowired
     private EmailSenderService emailSenderService;
+
     private static final String LOGIN_ERROR = "Identifiant ou mot de passe incorrect";
     private static final String REGISTER_ERROR = "L'inscription a échoué. Veuillez réessayer.";
     private static final String UNAUTHORIZED_ERROR = "Merci de vous authentifier pour accéder à cette ressource.";
     private static final String VERIFICATION_CODE_ERROR = "Code de vérification incorrect. Veuillez réessayer.";
 
-
     @GetMapping("/login")
-    public ResponseEntity<Map<String, Object>> login(HttpSession session) {
-        if (sessionManager.isUserConnectedAsAdmin(session)) {
+    public ResponseEntity<Map<String, Object>> login(HttpServletRequest request) {
+        if (sessionManager.isUserConnected(request, "admin")) {
             Map<String, Object> response = new HashMap<>();
             response.put("url", "/admin/dashboard");
             return new ResponseEntity<>(response, HttpStatus.FOUND);
@@ -58,19 +58,23 @@ public class AdminLoginController {
 
     @PostMapping("/login")
     public ResponseEntity<Map<String, Object>> login(@RequestParam String email,
-                                                     @RequestParam String password, HttpSession session) throws MessagingException {
+                                                     @RequestParam String password,
+                                                     HttpServletResponse response
+    ) throws MessagingException {
         AdminResponseDTO adminResponseDTO = adminService.getAdminByEmail(email);
         if (adminResponseDTO != null && userService.verifyPassword(password, adminResponseDTO.getPassword())) {
+            // Envoie de code par mail
             String verificationCode = verificationCodeService.generateVerificationCode();
             emailSenderService.sendHtmlEmail(email, verificationCode);
-            sessionManager.setUserToVerify(email, UserTypes.admin.toString(), verificationCode, session);
-            Map<String, Object> response = new HashMap<>();
-            response.put("url", "/admin/verify");
-            return new ResponseEntity<>(response, HttpStatus.OK);
+            // COOKIES pour stocker les informations de session
+            sessionManager.setUserToVerify(adminResponseDTO.getId(), UserTypes.admin.toString(), verificationCode, response);
+            Map<String, Object> res = new HashMap<>();
+            res.put("url", "/admin/verify");
+            return new ResponseEntity<>(res, HttpStatus.OK);
         } else {
-            Map<String, Object> response = new HashMap<>();
-            response.put("error", LOGIN_ERROR);
-            return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
+            Map<String, Object> res = new HashMap<>();
+            res.put("error", LOGIN_ERROR);
+            return new ResponseEntity<>(res, HttpStatus.UNAUTHORIZED);
         }
     }
 
@@ -95,10 +99,10 @@ public class AdminLoginController {
     }
 
     @GetMapping("/dashboard")
-    public ResponseEntity<Map<String, Object>> dashboard(HttpSession session) {
-        if (sessionManager.isUserConnectedAsAdmin(session)) {
+    public ResponseEntity<Map<String, Object>> dashboard(HttpServletRequest request) {
+        if (sessionManager.isUserConnected(request, "admin")) {
             Map<String, Object> response = new HashMap<>();
-            UserResponseDTO admin = userService.getUserByEmail(sessionManager.getConnectedUserEmail(session));
+            UserResponseDTO admin = userService.getUserById(sessionManager.getConnectedUserId(request));
             response.put("object", admin);
             return new ResponseEntity<>(response, HttpStatus.OK);
         } else {
@@ -110,33 +114,28 @@ public class AdminLoginController {
     }
 
     @GetMapping("/logout")
-    public ResponseEntity<Map<String, Object>> logout(HttpSession session) {
-        System.out.println("Logout admin...");
-        sessionManager.setUserAsDisconnected(session);
-        Map<String, Object> response = new HashMap<>();
-        response.put("url", "/admin/login");
-        return new ResponseEntity<>(response, HttpStatus.OK);
+    public ResponseEntity<Map<String, Object>> logout(HttpServletResponse response) {
+        sessionManager.setUserAsDisconnected(response);
+        Map<String, Object> res = new HashMap<>();
+        res.put("url", "/admin/login");
+        return new ResponseEntity<>(res, HttpStatus.OK);
     }
 
     @PostMapping("/verify")
-    public ResponseEntity<Map<String, Object>> verify(@RequestParam String code, HttpSession session) {
-        String savedCode = sessionManager.getVerificationCode(session);
-        System.out.println("savedCode: " + savedCode);
-        System.out.println("code : " + code);
-        System.out.println("equals : " + code.equals(savedCode));
+    public ResponseEntity<Map<String, Object>> verify(@RequestParam String code,
+                                                      HttpServletResponse response,
+                                                      HttpServletRequest request) {
+        String savedCode = sessionManager.getVerificationCode(request);
+        Map<String, Object> res = new HashMap<>();
 
         if (code.equals(savedCode)) {
-            // Code de vérification valide, accorder une session
-            sessionManager.setUserAsConnected(sessionManager.getConnectedUserEmail(session), String.valueOf(UserTypes.admin), session);
-            Map<String, Object> response = new HashMap<>();
-            response.put("url", "/admin/dashboard");
-            return new ResponseEntity<>(response, HttpStatus.OK);
+            Long userId = sessionManager.getConnectedUserId(request);
+            sessionManager.setUserAsConnected(userId, String.valueOf(UserTypes.admin), response);
+            res.put("url", "/admin/dashboard");
+            return new ResponseEntity<>(res, HttpStatus.OK);
         } else {
-            // Code de vérification incorrect, gérer l'erreur
-            Map<String, Object> response = new HashMap<>();
-            response.put("error", VERIFICATION_CODE_ERROR);
-            return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
+            res.put("error", VERIFICATION_CODE_ERROR);
+            return new ResponseEntity<>(res, HttpStatus.UNAUTHORIZED);
         }
     }
-
 }

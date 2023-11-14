@@ -31,23 +31,24 @@ public class UserAuthenticationFilter implements Filter {
         HttpServletResponse httpResponse = (HttpServletResponse) response;
         HttpSession session = httpRequest.getSession(false);
         String requestURI = httpRequest.getRequestURI();
+
         if (requestURI.endsWith("/login")) {
             chain.doFilter(request, response);
             return;
         }
+
         if (isUrlToProtect(requestURI)) {
-            if (session == null || session.getAttribute("userType") == null) {
+            if (session == null || session.getAttribute(SessionManager.USER_TYPE_ATTRIBUTE) == null) {
                 // L'utilisateur n'est pas authentifié, rediriger vers la page de connexion du client
                 String loginUrl = "/client/login";
                 httpResponse.sendRedirect(httpRequest.getContextPath() + loginUrl);
             } else {
-                String userType = sessionManager.getConnectedUserType(session);
-
+                String userType = sessionManager.getConnectedUserType(httpRequest);
                 // Vérifier si l'utilisateur peut accéder à cette URL
-                if (canUserAccessURL(userType, requestURI, (HttpServletRequest) request)) {
+                if (canUserAccessURL(userType, requestURI, httpRequest)) {
                     chain.doFilter(request, response);
                 } else {
-                    String loginUrl = "/" + userType + "/login";
+                    String loginUrl = "/" + userType.toLowerCase() + "/login";
                     httpResponse.sendRedirect(httpRequest.getContextPath() + loginUrl);
                 }
             }
@@ -63,15 +64,13 @@ public class UserAuthenticationFilter implements Filter {
             return true;
         } else if (UserTypes.client.toString().equalsIgnoreCase(userType)) {
             // Les clients ont accès aux URL client
-            return requestURI.startsWith(httpRequest.getContextPath() + "/clients/");
+            return requestURI.startsWith(httpRequest.getContextPath() + "/client/");
         } else if (UserTypes.merchant.toString().equalsIgnoreCase(userType)) {
             // Les marchands ont accès aux URL merchant
-            return requestURI.startsWith(httpRequest.getContextPath() + "/merchants/");
+            return requestURI.startsWith(httpRequest.getContextPath() + "/merchant/");
         }
         return false;
     }
-
-
 
     @Override
     public void destroy() {
