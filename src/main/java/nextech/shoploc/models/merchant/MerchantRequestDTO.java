@@ -9,6 +9,7 @@ import nextech.shoploc.models.user.UserRequestDTO;
 @Setter
 public class MerchantRequestDTO extends UserRequestDTO {
     private String businessName;
+    private String representative;
     private String address;
     private String phoneNumber;
     private AccountStatus status;
