@@ -85,4 +85,11 @@ public class AdminController {
         return adminResponseDTO.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
+    @DeleteMapping("/{id}")
+    @ApiOperation(value = "Delete a admin", notes = "Delete a admin by their ID")
+    public ResponseEntity<Void> deleteAdmin(@PathVariable Long id) {
+        adminService.deleteAdmin(id);
+        return ResponseEntity.noContent().build();
+    }
+
 }

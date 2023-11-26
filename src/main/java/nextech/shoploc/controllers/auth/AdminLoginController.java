@@ -67,7 +67,7 @@ public class AdminLoginController {
             String verificationCode = verificationCodeService.generateVerificationCode();
             emailSenderService.sendHtmlEmail(email, verificationCode);
             // COOKIES pour stocker les informations de session
-            sessionManager.setUserToVerify(adminResponseDTO.getId(), UserTypes.admin.toString(), verificationCode, response);
+            sessionManager.setUserToVerify(adminResponseDTO.getUserId(), UserTypes.admin.toString(), verificationCode, response);
             Map<String, Object> res = new HashMap<>();
             res.put("url", "/admin/verify");
             return new ResponseEntity<>(res, HttpStatus.OK);

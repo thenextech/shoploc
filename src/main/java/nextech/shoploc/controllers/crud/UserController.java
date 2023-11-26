@@ -12,9 +12,10 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Optional;
+
 @RestController
 @RequestMapping("/users")
-@Api(tags = "Users", description = "Operations on users")
+@Api(tags = "Users")
 public class UserController {
 
     private final UserService userService;
@@ -79,6 +80,5 @@ public class UserController {
             return ResponseEntity.notFound().build();
         }
     }
-
 
 }

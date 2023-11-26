@@ -1,16 +1,15 @@
 package nextech.shoploc.domains;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import nextech.shoploc.domains.enums.AccountStatus;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class Merchant extends User {
@@ -30,4 +29,7 @@ public class Merchant extends User {
 
     @OneToMany(mappedBy = "merchant", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<MerchantSchedule> schedules = new ArrayList<>();
+
+    @OneToMany(mappedBy = "merchant", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<MerchantsCategoriesProducts> merchantsCategoriesProducts = new ArrayList<>();
 }

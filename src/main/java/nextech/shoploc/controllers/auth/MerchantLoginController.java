@@ -69,7 +69,7 @@ public class MerchantLoginController {
                 String verificationCode = verificationCodeService.generateVerificationCode();
                 emailSenderService.sendHtmlEmail(email, verificationCode);
                 // COOKIES pour stocker les informations de session
-                sessionManager.setUserToVerify(merchantResponseDTO.getId(), UserTypes.merchant.toString(), verificationCode, response);
+                sessionManager.setUserToVerify(merchantResponseDTO.getUserId(), UserTypes.merchant.toString(), verificationCode, response);
                 res.put("url", "/merchant/verify");
                 return new ResponseEntity<>(res, HttpStatus.OK);
             } else {

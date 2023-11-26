@@ -27,5 +27,7 @@ public class Client extends User {
     @Column(name = "clientPostalCode")
     private String postalCode;
 
+    @Column(name = "is_vfp")
+    private Boolean isVFP;
 }
 

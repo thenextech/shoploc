@@ -1,14 +1,12 @@
 package nextech.shoploc.models.admin;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
-@Data
+@Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 public class AdminResponseDTO extends AdminRequestDTO {
-    private Long id;
-
+    private Long userId;
 
 }

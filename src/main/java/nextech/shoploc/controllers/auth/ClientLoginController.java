@@ -65,9 +65,10 @@ public class ClientLoginController {
         if (clientResponseDTO != null && userService.verifyPassword(password, clientResponseDTO.getPassword())) {
             // Envoie de code par mail
             String verificationCode = verificationCodeService.generateVerificationCode();
-            emailSenderService.sendHtmlEmail(email, verificationCode);
+            System.out.print("code verification :" + verificationCode);
+            //emailSenderService.sendHtmlEmail(email, verificationCode);
             // COOKIES pour stocker les informations de session
-            sessionManager.setUserToVerify(clientResponseDTO.getId(), UserTypes.client.toString(), verificationCode, response);
+            sessionManager.setUserToVerify(clientResponseDTO.getUserId(), UserTypes.client.toString(), verificationCode, response);
             Map<String, Object> res = new HashMap<>();
             res.put("url", "/client/verify");
             return new ResponseEntity<>(res, HttpStatus.OK);
