@@ -39,7 +39,9 @@ public class ClientLoginController {
     private EmailSenderService emailSenderService;
 
     private static final String LOGIN_ERROR = "Identifiant ou mot de passe incorrect";
+    private static final String NOT_FOUND_ERROR = "Adresse e-mail introuvable";
     private static final String REGISTER_ERROR = "L'inscription a échoué. Veuillez réessayer.";
+    private static final String INTEGRITY_ERROR = "Cet adresse e-mail existe déjà. Veuillez réessayer.";
     private static final String UNAUTHORIZED_ERROR = "Merci de vous authentifier pour accéder à cette ressource.";
     private static final String VERIFICATION_CODE_ERROR = "Code de vérification incorrect. Veuillez réessayer.";
 
@@ -76,7 +78,8 @@ public class ClientLoginController {
             Map<String, Object> res = new HashMap<>();
             res.put("error", LOGIN_ERROR);
             return new ResponseEntity<>(res, HttpStatus.UNAUTHORIZED);
-        }
+    	}
+        
     }
 
     @GetMapping("/register")
@@ -88,15 +91,21 @@ public class ClientLoginController {
 
     @PostMapping("/register")
     public ResponseEntity<Map<String, Object>> register(@ModelAttribute("client") ClientRequestDTO client) {
-        ClientResponseDTO ard = clientService.createClient(client);
-        Map<String, Object> response = new HashMap<>();
-        if (ard == null) {
-            response.put("error", REGISTER_ERROR);
+    	Map<String, Object> response = new HashMap<>();
+    	try {
+        	ClientResponseDTO ard = clientService.createClient(client);
+            if (ard == null) {
+                response.put("error", REGISTER_ERROR);
+                return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+            } else {
+                response.put("url", "/client/login");
+                return new ResponseEntity<>(response, HttpStatus.OK);
+            }        	
+        } catch(Exception e) {
+        	response.put("error", INTEGRITY_ERROR);
             return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
-        } else {
-            response.put("url", "/client/login");
-            return new ResponseEntity<>(response, HttpStatus.FOUND);
         }
+    	
     }
 
     @GetMapping("/dashboard")
