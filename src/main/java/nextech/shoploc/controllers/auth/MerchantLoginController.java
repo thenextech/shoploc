@@ -1,6 +1,5 @@
 package nextech.shoploc.controllers.auth;
 
-import jakarta.mail.MessagingException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
@@ -9,7 +8,6 @@ import nextech.shoploc.domains.enums.AccountStatus;
 import nextech.shoploc.domains.enums.UserTypes;
 import nextech.shoploc.models.merchant.MerchantRequestDTO;
 import nextech.shoploc.models.merchant.MerchantResponseDTO;
-import nextech.shoploc.models.user.UserResponseDTO;
 import nextech.shoploc.services.auth.EmailSenderService;
 import nextech.shoploc.services.auth.VerificationCodeService;
 import nextech.shoploc.services.merchant.MerchantService;
@@ -61,24 +59,29 @@ public class MerchantLoginController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<Map<String, Object>> login(@RequestParam String email, @RequestParam String password, HttpServletResponse response) throws MessagingException {
+    public ResponseEntity<Map<String, Object>> login(@RequestParam String email, @RequestParam String password, HttpServletResponse response) {
         Map<String, Object> res = new HashMap<>();
-        MerchantResponseDTO merchantResponseDTO = merchantService.getMerchantByEmail(email);
-        if (merchantResponseDTO != null && userService.verifyPassword(password, merchantResponseDTO.getPassword())) {
-            if (merchantResponseDTO.getStatus().equals(AccountStatus.ACTIVE)) {
-                // Envoie de code par mail
-                String verificationCode = verificationCodeService.generateVerificationCode();
-                emailSenderService.sendHtmlEmail(email, verificationCode);
-                // COOKIES pour stocker les informations de session
-                sessionManager.setUserToVerify(merchantResponseDTO.getUserId(), UserTypes.merchant.toString(), verificationCode, response);
-                res.put("url", "/merchant/verify");
-                return new ResponseEntity<>(res, HttpStatus.OK);
+        try {
+            MerchantResponseDTO merchantResponseDTO = merchantService.getMerchantByEmail(email);
+            if (merchantResponseDTO != null && userService.verifyPassword(password, merchantResponseDTO.getPassword())) {
+                if (merchantResponseDTO.getStatus().equals(AccountStatus.ACTIVE)) {
+                    // Envoie de code par mail
+                    String verificationCode = verificationCodeService.generateVerificationCode();
+                    emailSenderService.sendHtmlEmail(email, verificationCode);
+                    // COOKIES pour stocker les informations de session
+                    sessionManager.setUserToVerify(merchantResponseDTO.getUserId(), UserTypes.merchant.toString(), verificationCode, response);
+                    res.put("url", "/merchant/verify");
+                    return new ResponseEntity<>(res, HttpStatus.OK);
+                } else {
+                    res.put("error", ACCOUNT_STATUS_ERROR + merchantResponseDTO.getStatus());
+                    return new ResponseEntity<>(res, HttpStatus.UNAUTHORIZED);
+                }
             } else {
                 res.put("error", LOGIN_ERROR);
                 return new ResponseEntity<>(res, HttpStatus.UNAUTHORIZED);
-            }        	
-        } catch(Exception e) {
-        	res.put("error", NOT_FOUND_ERROR);
+            }
+        } catch (Exception e) {
+            res.put("error", NOT_FOUND_ERROR);
             return new ResponseEntity<>(res, HttpStatus.UNAUTHORIZED);
         }
     }
@@ -91,7 +94,7 @@ public class MerchantLoginController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<Map<String, Object>> register(@ModelAttribute("merchant") MerchantRequestDTO merchant) {
+    public ResponseEntity<Map<String, Object>> register(@RequestBody MerchantRequestDTO merchant) {
         merchant.setStatus(AccountStatus.ACTIVE);
         MerchantResponseDTO ard = merchantService.createMerchant(merchant);
         Map<String, Object> response = new HashMap<>();

@@ -4,14 +4,13 @@ import jakarta.servlet.*;
 import jakarta.servlet.annotation.WebFilter;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.HttpSession;
-import nextech.shoploc.domains.enums.UrlToProtect;
 import nextech.shoploc.domains.enums.UserTypes;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
-import java.util.Arrays;
+
+// Importations nécessaires...
 
 @Component
 @WebFilter(urlPatterns = {"/*"})
@@ -22,62 +21,75 @@ public class UserAuthenticationFilter implements Filter {
 
     @Override
     public void init(FilterConfig filterConfig) {
-        // Initialisation du filtre
     }
 
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
         HttpServletRequest httpRequest = (HttpServletRequest) request;
         HttpServletResponse httpResponse = (HttpServletResponse) response;
-        HttpSession session = httpRequest.getSession(false);
         String requestURI = httpRequest.getRequestURI();
 
-        if (requestURI.endsWith("/login")) {
+        // Vérifier si la requête est pour la connexion ou l'inscription
+        if (requestURI.endsWith("/login") || requestURI.endsWith("/register")) {
             chain.doFilter(request, response);
             return;
         }
 
+        // Vérifier si l'URL doit être protégée
         if (isUrlToProtect(requestURI)) {
-            if (session == null || session.getAttribute(SessionManager.USER_TYPE_ATTRIBUTE) == null) {
-                // L'utilisateur n'est pas authentifié, rediriger vers la page de connexion du client
-                String loginUrl = "/client/login";
-                httpResponse.sendRedirect(httpRequest.getContextPath() + loginUrl);
-            } else {
-                String userType = sessionManager.getConnectedUserType(httpRequest);
-                // Vérifier si l'utilisateur peut accéder à cette URL
-                if (canUserAccessURL(userType, requestURI, httpRequest)) {
-                    chain.doFilter(request, response);
-                } else {
-                    String loginUrl = "/" + userType.toLowerCase() + "/login";
-                    httpResponse.sendRedirect(httpRequest.getContextPath() + loginUrl);
-                }
+            String userType = sessionManager.getConnectedUserType(httpRequest);
+
+            // Vérifier si l'utilisateur est authentifié
+            if (userType == null) {
+                sendUnauthorizedResponse(httpResponse, getRedirectUrl(userType), "Please log in to access this resource");
+                return;
             }
-        } else {
-            // Si l'URL n'est pas protégée, laisser passer la requête
-            chain.doFilter(request, response);
+
+            // Vérifier si l'utilisateur a les autorisations nécessaires
+            if (!canUserAccessURL(userType, requestURI, httpRequest)) {
+                sendUnauthorizedResponse(httpResponse, getRedirectUrl(userType), "You do not have permission to access this resource");
+                return;
+            }
         }
+
+        // Si l'URL n'est pas protégée ou si l'utilisateur a les autorisations nécessaires, laisser passer la requête
+        chain.doFilter(request, response);
     }
 
     private boolean canUserAccessURL(String userType, String requestURI, HttpServletRequest httpRequest) {
         if (UserTypes.admin.toString().equalsIgnoreCase(userType)) {
-            // Les administrateurs ont accès à tout
-            return true;
+            return requestURI.startsWith(httpRequest.getContextPath() + "/admin/");
         } else if (UserTypes.client.toString().equalsIgnoreCase(userType)) {
-            // Les clients ont accès aux URL client
             return requestURI.startsWith(httpRequest.getContextPath() + "/client/");
         } else if (UserTypes.merchant.toString().equalsIgnoreCase(userType)) {
-            // Les marchands ont accès aux URL merchant
             return requestURI.startsWith(httpRequest.getContextPath() + "/merchant/");
         }
         return false;
     }
 
-    @Override
-    public void destroy() {
-        // Nettoyer le filtre
+    private boolean isUrlToProtect(String url) {
+        return url.startsWith("/admin") || url.startsWith("/client") || url.startsWith("/merchant");
     }
 
-    private boolean isUrlToProtect(String url) {
-        return Arrays.stream(UrlToProtect.values()).anyMatch(urlToProtect -> url.startsWith(urlToProtect.getUrl()));
+    private void sendUnauthorizedResponse(HttpServletResponse response, String redirectUrl, String message) throws IOException {
+        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+        response.setContentType("application/json");
+        String responseBody = "{\"url\":\"" + redirectUrl + "\", \"message\":\"" + message + "\"}";
+        response.getWriter().write(responseBody);
+    }
+
+    private String getRedirectUrl(String userType) {
+        // Logique pour déterminer l'URL de redirection basée sur le type d'utilisateur
+        if (UserTypes.client.toString().equalsIgnoreCase(userType)) {
+            return "/client/login";
+        } else if (UserTypes.merchant.toString().equalsIgnoreCase(userType)) {
+            return "/merchant/login";
+        } else {
+            return "/client/login"; // Redirection par défaut
+        }
+    }
+
+    @Override
+    public void destroy() {
     }
 }

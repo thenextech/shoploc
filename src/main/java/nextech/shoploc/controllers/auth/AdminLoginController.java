@@ -86,7 +86,7 @@ public class AdminLoginController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<Map<String, Object>> register(@ModelAttribute("admin") AdminRequestDTO admin) {
+    public ResponseEntity<Map<String, Object>> register(@RequestBody AdminRequestDTO admin) {
         AdminResponseDTO ard = adminService.createAdmin(admin);
         Map<String, Object> response = new HashMap<>();
         if (ard == null) {

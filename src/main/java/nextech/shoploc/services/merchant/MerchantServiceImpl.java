@@ -6,7 +6,6 @@ import nextech.shoploc.models.merchant.MerchantResponseDTO;
 import nextech.shoploc.repositories.MerchantRepository;
 import nextech.shoploc.utils.ModelMapperUtils;
 import nextech.shoploc.utils.exceptions.NotFoundException;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -16,10 +15,10 @@ import java.util.stream.Collectors;
 
 @Service
 public class MerchantServiceImpl implements MerchantService {
-	
-	@Autowired
+
+    @Autowired
     private PasswordEncoder passwordEncoder;
-	
+
     private final MerchantRepository merchantRepository;
     private final ModelMapperUtils modelMapperUtils;
 
@@ -30,7 +29,10 @@ public class MerchantServiceImpl implements MerchantService {
 
     @Override
     public MerchantResponseDTO createMerchant(MerchantRequestDTO merchantRequestDTO) {
+        System.out.println("password: "+merchantRequestDTO.getPassword());
         Merchant merchant = modelMapperUtils.getModelMapper().map(merchantRequestDTO, Merchant.class);
+        System.out.println("password after: "+merchant.getPassword());
+
         String encodedPassword = passwordEncoder.encode(merchant.getPassword());
         merchant.setPassword(encodedPassword);
         merchant = merchantRepository.save(merchant);
