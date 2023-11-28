@@ -12,8 +12,8 @@ public class ProductRequestDTO {
     private Long categoryProduct;
     @NotNull
     private String name;
+    private Integer qteStock;
     private String description;
     private Status status;
-
 
 }

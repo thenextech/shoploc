@@ -22,6 +22,9 @@ public class Product {
     @Column(name = "name", nullable = false)
     private String name;
 
+    @Column(name = "qte_stock", nullable = false)
+    private Integer qteStock;
+
     @Column
     @Enumerated(EnumType.STRING)
     private Status status;
