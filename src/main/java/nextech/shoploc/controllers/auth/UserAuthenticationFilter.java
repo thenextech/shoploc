@@ -10,8 +10,6 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 
-// Importations nécessaires...
-
 @Component
 @WebFilter(urlPatterns = {"/*"})
 public class UserAuthenticationFilter implements Filter {
