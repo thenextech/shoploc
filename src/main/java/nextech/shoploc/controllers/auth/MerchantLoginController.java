@@ -4,7 +4,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
-import nextech.shoploc.domains.enums.AccountStatus;
+import nextech.shoploc.domains.enums.Status;
 import nextech.shoploc.domains.enums.UserTypes;
 import nextech.shoploc.models.merchant.MerchantRequestDTO;
 import nextech.shoploc.models.merchant.MerchantResponseDTO;
@@ -64,7 +64,7 @@ public class MerchantLoginController {
         try {
             MerchantResponseDTO merchantResponseDTO = merchantService.getMerchantByEmail(email);
             if (merchantResponseDTO != null && userService.verifyPassword(password, merchantResponseDTO.getPassword())) {
-                if (merchantResponseDTO.getStatus().equals(AccountStatus.ACTIVE)) {
+                if (merchantResponseDTO.getStatus().equals(Status.ACTIVE)) {
                     // Envoie de code par mail
                     String verificationCode = verificationCodeService.generateVerificationCode();
                     emailSenderService.sendHtmlEmail(email, verificationCode);
@@ -95,7 +95,7 @@ public class MerchantLoginController {
 
     @PostMapping("/register")
     public ResponseEntity<Map<String, Object>> register(@RequestBody MerchantRequestDTO merchant) {
-        merchant.setStatus(AccountStatus.ACTIVE);
+        merchant.setStatus(Status.ACTIVE);
         MerchantResponseDTO ard = merchantService.createMerchant(merchant);
         Map<String, Object> response = new HashMap<>();
         if (ard == null) {

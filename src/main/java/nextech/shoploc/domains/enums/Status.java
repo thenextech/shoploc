@@ -1,6 +1,6 @@
 package nextech.shoploc.domains.enums;
 
-public enum AccountStatus {
+public enum Status {
     ACTIVE,
     INACTIVE,
     BLOCKED,

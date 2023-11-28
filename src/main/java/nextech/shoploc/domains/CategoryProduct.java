@@ -5,13 +5,17 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class MerchantsCategoriesProducts {
+public class CategoryProduct {
 
     @Id
+    @Column(name="category_product_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
@@ -22,5 +26,6 @@ public class MerchantsCategoriesProducts {
     @Column(name = "category_name")
     private String categoryName;
 
-
+    @OneToMany(mappedBy = "categoryProduct", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<Product> products = new ArrayList<>();
 }

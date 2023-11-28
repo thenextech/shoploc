@@ -5,7 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import nextech.shoploc.domains.enums.AccountStatus;
+import nextech.shoploc.domains.enums.Status;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,11 +28,11 @@ public class Merchant extends User {
 
     @Column
     @Enumerated(EnumType.STRING)
-    private AccountStatus status;
+    private Status status;
 
     @OneToMany(mappedBy = "merchant", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<MerchantSchedule> schedules = new ArrayList<>();
 
     @OneToMany(mappedBy = "merchant", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<MerchantsCategoriesProducts> merchantsCategoriesProducts = new ArrayList<>();
+    private List<CategoryProduct> merchantsCategoriesProducts = new ArrayList<>();
 }

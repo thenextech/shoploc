@@ -2,16 +2,15 @@ package nextech.shoploc.models.merchant;
 
 import lombok.Getter;
 import lombok.Setter;
-import nextech.shoploc.domains.enums.AccountStatus;
+import nextech.shoploc.domains.enums.Status;
 import nextech.shoploc.models.user.UserResponseDTO;
 
 @Getter
 @Setter
 public class MerchantRequestDTO extends UserResponseDTO {
     private String businessName;
-    private String representative;
     private String address;
     private String phoneNumber;
-    private AccountStatus status;
+    private Status status;
 }
 
