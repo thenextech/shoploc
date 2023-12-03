@@ -42,6 +42,12 @@ jobs:
       - name: Build with Maven
         run: mvn package
 
+      - name: Archive artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: target
+          path: target/
+
       - name: Run unit tests
         run: mvn test
 
@@ -78,6 +84,7 @@ jobs:
 
   deploy:
     name: Deploying to Kubernetes
+    needs: build-test
     runs-on: ubuntu-latest
 
     steps:
@@ -99,6 +106,15 @@ jobs:
           username: ${{ secrets.VPN_USERNAME }}
           password: ${{ secrets.VPN_PASSWORD }}
 
+      - name: Download artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: target
+          path: target/
+          
+      - name: Show directory
+        run: ls
+    
       - name: Configure KUBECONFIG
         if: github.ref == 'refs/heads/main'
         run: |
