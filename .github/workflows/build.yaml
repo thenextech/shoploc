@@ -3,7 +3,7 @@ name: CI/CD Pipeline
 on:
   push:
     branches:
-      - dev
+      - ci-cd-test
   pull_request: 
     branches:
       - dev
@@ -42,6 +42,12 @@ jobs:
       - name: Build with Maven
         run: mvn package
 
+      - name: Archive artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: target
+          path: target/
+
       - name: Run unit tests
         run: mvn test
 
@@ -78,6 +84,7 @@ jobs:
 
   deploy:
     name: Deploying to Kubernetes
+    needs: build-test
     runs-on: ubuntu-latest
 
     steps:
@@ -99,6 +106,16 @@ jobs:
           username: ${{ secrets.VPN_USERNAME }}
           password: ${{ secrets.VPN_PASSWORD }}
 
+
+      - name: Download artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: target
+          path: target/
+          
+      - name: Show directory
+        run: ls
+    
       - name: Configure KUBECONFIG
         if: github.ref == 'refs/heads/main'
         run: |
@@ -107,7 +124,7 @@ jobs:
           cat ${HOME}/.kube/config
       
       - name: Configure KUBECONFIG
-        if: github.ref == 'refs/heads/dev'
+        if: github.ref == 'refs/heads/ci-cd-test'
         run: |
           mkdir ${HOME}/.kube
           echo ${{ secrets.KUBE_CONFIG_DEV }} | base64 --decode > ${HOME}/.kube/config
@@ -131,5 +148,5 @@ jobs:
         run: sed -i "s/TAG_TO_REPLACE/$DOCKER_TAG/" kubernetes/dev-deploy.yaml
 
       - name: Deploy Kubernetes
-        if: github.ref == 'refs/heads/dev'
+        if: github.ref == 'refs/heads/ci-cd-test'
         run: kubectl apply --kubeconfig ${HOME}/.kube/config -f kubernetes/dev-deploy.yaml --request-timeout=5m
