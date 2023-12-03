@@ -8,6 +8,7 @@ import lombok.Setter;
 import nextech.shoploc.domains.enums.Status;
 
 @Entity
+@Table(name = "products")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -17,13 +18,16 @@ public class Product {
     @Id
     @Column(name = "product_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Long productId;
 
     @Column(name = "name", nullable = false)
     private String name;
 
     @Column(name = "qte_stock", nullable = false)
     private Integer qteStock;
+
+    @Column(name = "price", nullable = false)
+    private double price;
 
     @Column
     @Enumerated(EnumType.STRING)

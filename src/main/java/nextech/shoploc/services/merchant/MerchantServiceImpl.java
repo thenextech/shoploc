@@ -29,10 +29,7 @@ public class MerchantServiceImpl implements MerchantService {
 
     @Override
     public MerchantResponseDTO createMerchant(MerchantRequestDTO merchantRequestDTO) {
-        System.out.println("password: "+merchantRequestDTO.getPassword());
         Merchant merchant = modelMapperUtils.getModelMapper().map(merchantRequestDTO, Merchant.class);
-        System.out.println("password after: "+merchant.getPassword());
-
         String encodedPassword = passwordEncoder.encode(merchant.getPassword());
         merchant.setPassword(encodedPassword);
         merchant = merchantRepository.save(merchant);

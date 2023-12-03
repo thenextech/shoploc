@@ -1,15 +1,6 @@
 package nextech.shoploc.controllers.auth;
 
-import jakarta.servlet.*;
-import jakarta.servlet.annotation.WebFilter;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import nextech.shoploc.domains.enums.UserTypes;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
-import java.io.IOException;
-
+/*
 @Component
 @WebFilter(urlPatterns = {"/*"})
 public class UserAuthenticationFilter implements Filter {
@@ -91,3 +82,6 @@ public class UserAuthenticationFilter implements Filter {
     public void destroy() {
     }
 }
+
+
+ */

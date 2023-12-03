@@ -59,16 +59,12 @@ public class MerchantController {
     @Operation(summary = "Get all Merchants")
     public ResponseEntity<List<MerchantResponseDTO>> getAllMerchants() {
         List<MerchantResponseDTO> merchants = merchantService.getAllMerchants();
-        for (MerchantResponseDTO m : merchants) {
-            System.out.println("id Merchant:" + m.getUserId());
-        }
         return new ResponseEntity<>(merchants, HttpStatus.OK);
     }
 
     @PutMapping("/{id}")
     @ApiOperation(value = "Update merchant", notes = "Update an existing merchant by their ID")
     public ResponseEntity<MerchantResponseDTO> updateMerchant(@PathVariable Long id, @RequestBody MerchantRequestDTO merchantRequestDTO) {
-        System.out.println(merchantRequestDTO.getStatus());
         Optional<MerchantResponseDTO> merchantResponseDTO = Optional.ofNullable(merchantService.updateMerchant(id, merchantRequestDTO));
         return merchantResponseDTO.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
