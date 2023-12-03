@@ -1,5 +1,19 @@
 package nextech.shoploc.controllers.auth;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
@@ -12,13 +26,8 @@ import nextech.shoploc.services.auth.EmailSenderService;
 import nextech.shoploc.services.auth.VerificationCodeService;
 import nextech.shoploc.services.merchant.MerchantService;
 import nextech.shoploc.services.user.UserService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.HashMap;
-import java.util.Map;
+import nextech.shoploc.utils.exceptions.EmailAlreadyExistsException;
+import nextech.shoploc.utils.exceptions.MerchantNotFoundException;
 
 @RestController
 @RequestMapping("/merchant")
@@ -38,10 +47,10 @@ public class MerchantLoginController {
     private EmailSenderService emailSenderService;
 
     private static final String LOGIN_ERROR = "Identifiant ou mot de passe incorrect";
-    private static final String NOT_FOUND_ERROR = "Adresse e-mail introuvable";
     private static final String REGISTER_ERROR = "L'inscription a échoué. Veuillez réessayer.";
     private static final String UNAUTHORIZED_ERROR = "Merci de vous authentifier pour accéder à cette ressource.";
     private static final String VERIFICATION_CODE_ERROR = "Code de vérification incorrect. Veuillez réessayer.";
+    private static final String INTEGRITY_ERROR = "Cette adresse e-mail existe déjà.";
     private static final String ACCOUNT_STATUS_ERROR = "Votre compte est ";
 
 
@@ -81,7 +90,7 @@ public class MerchantLoginController {
                 return new ResponseEntity<>(res, HttpStatus.UNAUTHORIZED);
             }
         } catch (Exception e) {
-            res.put("error", NOT_FOUND_ERROR);
+            res.put("error", LOGIN_ERROR);
             return new ResponseEntity<>(res, HttpStatus.UNAUTHORIZED);
         }
     }
@@ -95,15 +104,26 @@ public class MerchantLoginController {
 
     @PostMapping("/register")
     public ResponseEntity<Map<String, Object>> register(@RequestBody MerchantRequestDTO merchant) {
-        merchant.setStatus(Status.ACTIVE);
-        MerchantResponseDTO ard = merchantService.createMerchant(merchant);
-        Map<String, Object> response = new HashMap<>();
-        if (ard == null) {
-            response.put("error", REGISTER_ERROR);
-            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
-        } else {
-            response.put("url", "/merchant/login");
-            return new ResponseEntity<>(response, HttpStatus.OK);
+    	Map<String, Object> response = new HashMap<>();
+    	try {
+        	merchant.setStatus(Status.INACTIVE);
+            MerchantResponseDTO ard = merchantService.createMerchant(merchant);
+            if (ard == null) {
+                response.put("error", REGISTER_ERROR);
+                return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
+            } else {
+                response.put("url", "/merchant/login");
+                emailSenderService.sendPartnerVerificationEmail("shoploc.nts.ad@gmail.com", ard);
+                return new ResponseEntity<>(response, HttpStatus.OK);
+            }    
+    	} catch(EmailAlreadyExistsException e) {
+    		e.printStackTrace();
+    		response.put("error", INTEGRITY_ERROR);
+        	return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
+        } catch(Exception e) {
+        	e.printStackTrace();
+        	response.put("error", REGISTER_ERROR);
+        	return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
         }
     }
 
@@ -143,6 +163,18 @@ public class MerchantLoginController {
         } else {
             res.put("error", VERIFICATION_CODE_ERROR);
             return new ResponseEntity<>(res, HttpStatus.UNAUTHORIZED);
+        }
+    }
+    
+    @GetMapping("/activate/{merchantId}")
+    public ResponseEntity<String> activateMerchant(@PathVariable Long merchantId) {
+    	try {
+            merchantService.activateMerchant(merchantId);
+            return ResponseEntity.ok("Le compte du marchand a été activé avec succès.");
+        } catch (MerchantNotFoundException e) {
+        	return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 }

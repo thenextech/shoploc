@@ -38,9 +38,8 @@ public class ClientLoginController {
     private EmailSenderService emailSenderService;
 
     private static final String LOGIN_ERROR = "Identifiant ou mot de passe incorrect";
-    private static final String NOT_FOUND_ERROR = "Adresse e-mail introuvable";
     private static final String REGISTER_ERROR = "L'inscription a échoué. Veuillez réessayer.";
-    private static final String INTEGRITY_ERROR = "Cet adresse e-mail existe déjà. Veuillez réessayer.";
+    private static final String INTEGRITY_ERROR = "Cette adresse e-mail existe déjà.";
     private static final String UNAUTHORIZED_ERROR = "Merci de vous authentifier pour accéder à cette ressource.";
     private static final String VERIFICATION_CODE_ERROR = "Code de vérification incorrect. Veuillez réessayer.";
 
@@ -80,7 +79,7 @@ public class ClientLoginController {
             }
         } catch (Exception e) {
             Map<String, Object> res = new HashMap<>();
-            res.put("error", NOT_FOUND_ERROR);
+            res.put("error", LOGIN_ERROR);
             return new ResponseEntity<>(res, HttpStatus.UNAUTHORIZED);
         }
 

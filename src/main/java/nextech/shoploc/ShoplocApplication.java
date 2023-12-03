@@ -19,7 +19,7 @@ public class ShoplocApplication {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
                 registry.addMapping("/**")
-                        .allowedOrigins("http://localhost:3000")
+                        .allowedOriginPatterns("http://localhost:3000", "http://172.28.100.230:30100")
                         .allowedMethods("GET", "POST", "PUT", "DELETE")
                         .allowCredentials(true);
                 ;
