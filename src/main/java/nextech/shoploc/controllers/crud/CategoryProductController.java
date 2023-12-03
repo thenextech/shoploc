@@ -31,7 +31,6 @@ public class CategoryProductController {
     @ApiOperation(value = "Create a product category", notes = "Creates a new product category for a merchant")
     public ResponseEntity<CategoryProductResponseDTO> createCategory(
             @RequestBody CategoryProductRequestDTO categoryRequestDTO) {
-        System.out.println("Merchant id : " + categoryRequestDTO.getUserId());
         CategoryProductResponseDTO createdCategory = categoryService.createCategoryProduct(categoryRequestDTO);
         if (createdCategory != null) {
             return new ResponseEntity<>(createdCategory, HttpStatus.CREATED);

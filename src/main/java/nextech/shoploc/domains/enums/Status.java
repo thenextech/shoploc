@@ -5,5 +5,9 @@ public enum Status {
     INACTIVE,
     BLOCKED,
     DELETED,
-
+    IN_PREPARATION,
+    READY,
+    REFUSED,
+    CANCELLED,
+    
 }
