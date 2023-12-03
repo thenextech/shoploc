@@ -6,7 +6,8 @@ import nextech.shoploc.models.user.UserResponseDTO;
 import nextech.shoploc.repositories.UserRepository;
 import nextech.shoploc.utils.ModelMapperUtils;
 import nextech.shoploc.utils.exceptions.NotFoundException;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -18,12 +19,13 @@ public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
     private final ModelMapperUtils modelMapperUtils;
-    private final BCryptPasswordEncoder passwordEncoder;
+    
+	@Autowired
+    private PasswordEncoder passwordEncoder;
 
-    public UserServiceImpl(UserRepository userRepository, ModelMapperUtils modelMapperUtils, BCryptPasswordEncoder passwordEncoder) {
+    public UserServiceImpl(UserRepository userRepository, ModelMapperUtils modelMapperUtils) {
         this.userRepository = userRepository;
         this.modelMapperUtils = modelMapperUtils;
-        this.passwordEncoder = passwordEncoder;
     }
 
     @Override
@@ -85,6 +87,7 @@ public class UserServiceImpl implements UserService {
     public boolean verifyPassword(String rawPassword, String encodedPassword) {
         return passwordEncoder.matches(rawPassword, encodedPassword);
     }
+
 
 
 }

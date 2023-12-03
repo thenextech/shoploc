@@ -10,16 +10,20 @@ import nextech.shoploc.services.admin.AdminService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/admins")
-@Api(tags = "Admins", description = "Operations on admins")
+@Api(tags = "Admins")
 public class AdminController {
 
     private final AdminService adminService;
+    PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     @Autowired
     public AdminController(AdminService adminService) {
@@ -29,6 +33,12 @@ public class AdminController {
     @PostMapping("/create")
     @ApiOperation(value = "Create an admin", notes = "Creates a new admin")
     public ResponseEntity<AdminResponseDTO> createAdmin(@RequestBody AdminRequestDTO adminRequestDTO) {
+        // Hasher le mot de passe avec BCrypt
+        String hashedPassword = passwordEncoder.encode(adminRequestDTO.getPassword());
+
+        // Remplacez le mot de passe en clair par le mot de passe haché
+        adminRequestDTO.setPassword(hashedPassword);
+
         AdminResponseDTO createdAdmin = adminService.createAdmin(adminRequestDTO);
         if (createdAdmin != null) {
             return new ResponseEntity<>(createdAdmin, HttpStatus.CREATED);
@@ -66,6 +76,20 @@ public class AdminController {
     public ResponseEntity<List<AdminResponseDTO>> getAllAdmins() {
         List<AdminResponseDTO> admins = adminService.getAllAdmins();
         return new ResponseEntity<>(admins, HttpStatus.OK);
+    }
+
+    @PutMapping("/{id}")
+    @ApiOperation(value = "Update admin", notes = "Update an existing admin by their ID")
+    public ResponseEntity<AdminResponseDTO> updateUser(@PathVariable Long id, @RequestBody AdminResponseDTO adminRequestDTO) {
+        Optional<AdminResponseDTO> adminResponseDTO = Optional.ofNullable(adminService.updateAdmin(id, adminRequestDTO));
+        return adminResponseDTO.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    @DeleteMapping("/{id}")
+    @ApiOperation(value = "Delete a admin", notes = "Delete a admin by their ID")
+    public ResponseEntity<Void> deleteAdmin(@PathVariable Long id) {
+        adminService.deleteAdmin(id);
+        return ResponseEntity.noContent().build();
     }
 
 }

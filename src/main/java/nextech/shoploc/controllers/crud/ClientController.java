@@ -13,7 +13,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/clients")
-@Api(tags = "Clients", description = "Operations on clients")
+@Api(tags = "Clients")
 public class ClientController {
 
     private final ClientService clientService;
@@ -22,7 +22,7 @@ public class ClientController {
         this.clientService = clientService;
     }
 
-    @GetMapping
+    @GetMapping("/all")
     @ApiOperation(value = "Get all clients", notes = "Retrieve a list of all clients")
     public ResponseEntity<List<ClientResponseDTO>> getAllClients() {
         List<ClientResponseDTO> clients = clientService.getAllClients();
@@ -64,4 +64,5 @@ public class ClientController {
         clientService.deleteClient(id);
         return ResponseEntity.noContent().build();
     }
+
 }

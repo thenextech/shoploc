@@ -21,4 +21,5 @@ public interface UserService {
     UserResponseDTO updatePassword(Long id, String newPassword);
 
     boolean verifyPassword(String rawPassword, String encodedPassword);
+
 }

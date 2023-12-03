@@ -5,5 +5,6 @@ import lombok.Setter;
 @Getter
 @Setter
 public class ClientResponseDTO extends ClientRequestDTO {
-    private Long id;
+    private Long userId;
+
 }

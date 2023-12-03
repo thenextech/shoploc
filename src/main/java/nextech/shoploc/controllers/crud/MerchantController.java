@@ -12,10 +12,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/merchants")
-@Api(tags = "Merchants", description = "Operations on merchants")
+@Api(tags = "Merchants")
 public class MerchantController {
 
     private final MerchantService merchantService;
@@ -61,5 +62,17 @@ public class MerchantController {
         return new ResponseEntity<>(merchants, HttpStatus.OK);
     }
 
-    // Ajoutez d'autres méthodes de contrôleur si nécessaire.
+    @PutMapping("/{id}")
+    @ApiOperation(value = "Update merchant", notes = "Update an existing merchant by their ID")
+    public ResponseEntity<MerchantResponseDTO> updateMerchant(@PathVariable Long id, @RequestBody MerchantRequestDTO merchantRequestDTO) {
+        Optional<MerchantResponseDTO> merchantResponseDTO = Optional.ofNullable(merchantService.updateMerchant(id, merchantRequestDTO));
+        return merchantResponseDTO.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    @DeleteMapping("/{id}")
+    @ApiOperation(value = "Delete a merchant", notes = "Delete a merchant by their ID")
+    public ResponseEntity<Void> deleteMerchant(@PathVariable Long id) {
+        merchantService.deleteMerchant(id);
+        return ResponseEntity.noContent().build();
+    }
 }

@@ -8,10 +8,9 @@ import java.util.Date;
 @Getter
 @Setter
 public class UserRequestDTO {
-    private String firstName;
     private String lastName;
+    private String firstName;
     private String email;
     private String password;
     private Date birthday;
-
 }

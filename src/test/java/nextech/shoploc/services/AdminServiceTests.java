@@ -1,21 +1,12 @@
 package nextech.shoploc.services;
 
-import nextech.shoploc.domains.Admin;
-import nextech.shoploc.models.admin.AdminRequestDTO;
-import nextech.shoploc.models.admin.AdminResponseDTO;
 import nextech.shoploc.repositories.AdminRepository;
 import nextech.shoploc.services.admin.AdminService;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
 import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-
-import java.util.List;
-import java.util.Optional;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 public class AdminServiceTests {

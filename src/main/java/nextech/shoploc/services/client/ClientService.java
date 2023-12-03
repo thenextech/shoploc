@@ -18,4 +18,6 @@ public interface ClientService {
     void deleteClient(Long id);
 
     ClientResponseDTO updateClient(Long id, ClientRequestDTO clientRequestDTO);
+
+	ClientResponseDTO loginClient(String email, String password);
 }
