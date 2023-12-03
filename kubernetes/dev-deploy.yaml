@@ -28,6 +28,11 @@ spec:
                 configMapKeyRef:
                   key: postgres_host
                   name: backend-config
+            - name: DB_URL
+              valueFrom:
+                configMapKeyRef:
+                  key: postgres_url
+                  name: backend-config
             - name: DB_PORT
               valueFrom:
                 configMapKeyRef:
