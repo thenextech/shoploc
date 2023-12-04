@@ -1,17 +1,23 @@
 package nextech.shoploc.services.merchant;
 
-import nextech.shoploc.domains.Merchant;
-import nextech.shoploc.models.merchant.MerchantRequestDTO;
-import nextech.shoploc.models.merchant.MerchantResponseDTO;
-import nextech.shoploc.repositories.MerchantRepository;
-import nextech.shoploc.utils.ModelMapperUtils;
-import nextech.shoploc.utils.exceptions.NotFoundException;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.stream.Collectors;
+import nextech.shoploc.domains.Merchant;
+import nextech.shoploc.domains.enums.Status;
+import nextech.shoploc.models.merchant.MerchantRequestDTO;
+import nextech.shoploc.models.merchant.MerchantResponseDTO;
+import nextech.shoploc.repositories.MerchantRepository;
+import nextech.shoploc.services.auth.EmailSenderService;
+import nextech.shoploc.utils.ModelMapperUtils;
+import nextech.shoploc.utils.exceptions.EmailAlreadyExistsException;
+import nextech.shoploc.utils.exceptions.MerchantNotFoundException;
+import nextech.shoploc.utils.exceptions.NotFoundException;
 
 @Service
 public class MerchantServiceImpl implements MerchantService {
@@ -21,6 +27,9 @@ public class MerchantServiceImpl implements MerchantService {
 
     private final MerchantRepository merchantRepository;
     private final ModelMapperUtils modelMapperUtils;
+    
+    @Autowired                                    
+    private EmailSenderService emailSenderService;
 
     public MerchantServiceImpl(MerchantRepository merchantRepository, ModelMapperUtils modelMapperUtils) {
         this.merchantRepository = merchantRepository;
@@ -28,12 +37,16 @@ public class MerchantServiceImpl implements MerchantService {
     }
 
     @Override
-    public MerchantResponseDTO createMerchant(MerchantRequestDTO merchantRequestDTO) {
-        Merchant merchant = modelMapperUtils.getModelMapper().map(merchantRequestDTO, Merchant.class);
-        String encodedPassword = passwordEncoder.encode(merchant.getPassword());
-        merchant.setPassword(encodedPassword);
-        merchant = merchantRepository.save(merchant);
-        return modelMapperUtils.getModelMapper().map(merchant, MerchantResponseDTO.class);
+    public MerchantResponseDTO createMerchant(MerchantRequestDTO merchantRequestDTO) throws EmailAlreadyExistsException {
+        try {
+        	Merchant merchant = modelMapperUtils.getModelMapper().map(merchantRequestDTO, Merchant.class);
+            String encodedPassword = passwordEncoder.encode(merchant.getPassword());
+            merchant.setPassword(encodedPassword);
+            merchant = merchantRepository.save(merchant);
+            return modelMapperUtils.getModelMapper().map(merchant, MerchantResponseDTO.class);
+        } catch(Exception e) {
+        	throw new EmailAlreadyExistsException();
+        }
     }
 
     @Override
@@ -74,5 +87,22 @@ public class MerchantServiceImpl implements MerchantService {
         modelMapperUtils.getModelMapper().map(merchantRequestDTO, merchant);
         merchant = merchantRepository.save(merchant);
         return modelMapperUtils.getModelMapper().map(merchant, MerchantResponseDTO.class);
+    }
+    
+    @Override
+    public void activateMerchant(Long merchantId) {
+    	try {
+    		Optional<Merchant> optionalMerchant = merchantRepository.findById(merchantId);
+            if (optionalMerchant.isPresent()) {
+                Merchant merchant = optionalMerchant.get();
+                merchant.setStatus(Status.ACTIVE);
+                emailSenderService.sendMerchantAccountActivatedEmail(merchant.getEmail());
+                merchantRepository.save(merchant); 
+            } else {
+                throw new MerchantNotFoundException("Commerçant non trouvé avec l'identifiant : " + merchantId);
+            }   		
+    	} catch(Exception e) {
+    		e.printStackTrace();
+    	}
     }
 }

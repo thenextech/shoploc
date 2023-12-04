@@ -57,7 +57,7 @@ public class UserAuthenticationFilter implements Filter {
     }
 
     private boolean isUrlToProtect(String url) {
-        return url.startsWith("/admin") || url.startsWith("/client") || url.startsWith("/merchant");
+        return url.startsWith("/admin") || url.startsWith("/client") || url.startsWith("/merchant") && !url.startsWith("/merchant/activate");
     }
 
     private void sendUnauthorizedResponse(HttpServletResponse response, String redirectUrl, String message) throws IOException {
