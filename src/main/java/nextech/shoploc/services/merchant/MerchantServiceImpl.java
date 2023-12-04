@@ -96,7 +96,7 @@ public class MerchantServiceImpl implements MerchantService {
             if (optionalMerchant.isPresent()) {
                 Merchant merchant = optionalMerchant.get();
                 merchant.setStatus(Status.ACTIVE);
-                emailSenderService.sendMerchantAccountActivatedEmail(merchant.getEmail());
+                //emailSenderService.sendMerchantAccountActivatedEmail(merchant.getEmail());
                 merchantRepository.save(merchant); 
             } else {
                 throw new MerchantNotFoundException("Commerçant non trouvé avec l'identifiant : " + merchantId);

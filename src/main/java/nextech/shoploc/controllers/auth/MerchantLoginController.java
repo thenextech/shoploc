@@ -113,7 +113,7 @@ public class MerchantLoginController {
                 return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
             } else {
                 response.put("url", "/merchant/login");
-                emailSenderService.sendPartnerVerificationEmail("shoploc.nts.ad@gmail.com", ard);
+                //emailSenderService.sendPartnerVerificationEmail("shoploc.nts.ad@gmail.com", ard);
                 return new ResponseEntity<>(response, HttpStatus.OK);
             }    
     	} catch(EmailAlreadyExistsException e) {
