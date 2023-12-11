@@ -28,7 +28,7 @@ public class CategoryProductServiceImpl implements CategoryProductService {
         this.merchantRepository = merchantRepository;
         this.modelMapperUtils = modelMapperUtils;
 
-        Converter<Long, Merchant> convertIdentifierToMerchant = context -> this.merchantRepository.findById(context.getSource())
+        Converter<Long, Merchant> convertIdentifierToMerchant = context -> this.merchantRepository.findMerchantByUserId(context.getSource())
                 .orElseThrow(() -> new NotFoundException("Merchant not found with ID: " + context.getSource()));
 
         //Mapping MerchantRequestDTO -> Merchant

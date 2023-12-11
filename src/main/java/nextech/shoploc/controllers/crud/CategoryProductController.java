@@ -33,7 +33,7 @@ public class CategoryProductController {
             @RequestBody CategoryProductRequestDTO categoryRequestDTO) {
         CategoryProductResponseDTO createdCategory = categoryService.createCategoryProduct(categoryRequestDTO);
         if (createdCategory != null) {
-            return new ResponseEntity<>(createdCategory, HttpStatus.CREATED);
+            return new ResponseEntity<>(createdCategory, HttpStatus.OK);
         } else {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }

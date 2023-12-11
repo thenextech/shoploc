@@ -92,7 +92,7 @@ public class MerchantServiceImpl implements MerchantService {
     @Override
     public void activateMerchant(Long merchantId) {
     	try {
-    		Optional<Merchant> optionalMerchant = merchantRepository.findById(merchantId);
+    		Optional<Merchant> optionalMerchant = merchantRepository.findMerchantByUserId(merchantId);
             if (optionalMerchant.isPresent()) {
                 Merchant merchant = optionalMerchant.get();
                 merchant.setStatus(Status.ACTIVE);
