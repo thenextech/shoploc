@@ -9,5 +9,9 @@ public enum Status {
     READY,
     REFUSED,
     CANCELLED,
+    USED,
+    OUT_OF_STOCK,
+    AVAILABLE
+
     
 }

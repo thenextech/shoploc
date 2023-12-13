@@ -26,7 +26,7 @@ public class AdminController {
     PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     @Autowired
-    public AdminController(AdminService adminService) {
+    public AdminController(final AdminService adminService) {
         this.adminService = adminService;
     }
 

@@ -6,7 +6,6 @@ import io.swagger.v3.oas.annotations.Operation;
 import nextech.shoploc.domains.Invoice;
 import nextech.shoploc.models.invoice.InvoiceRequestDTO;
 import nextech.shoploc.models.invoice.InvoiceResponseDTO;
-import nextech.shoploc.repositories.InvoiceRepository;
 import nextech.shoploc.services.auth.EmailSenderService;
 import nextech.shoploc.services.invoice.InvoiceService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,13 +22,12 @@ import java.util.Optional;
 public class InvoiceController {
 
     private final InvoiceService invoiceService;
-    InvoiceRepository invoiceRepository;
-    @Autowired
-    private EmailSenderService emailSenderService;
+    private final EmailSenderService emailSenderService;
 
     @Autowired
-    public InvoiceController(InvoiceService invoiceService) {
+    public InvoiceController(final InvoiceService invoiceService, final EmailSenderService emailSenderService) {
         this.invoiceService = invoiceService;
+        this.emailSenderService = emailSenderService;
     }
 
     @PostMapping("/create")

@@ -4,8 +4,8 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.v3.oas.annotations.Operation;
-import nextech.shoploc.models.categoryProduct.CategoryProductRequestDTO;
-import nextech.shoploc.models.categoryProduct.CategoryProductResponseDTO;
+import nextech.shoploc.models.category_product.CategoryProductRequestDTO;
+import nextech.shoploc.models.category_product.CategoryProductResponseDTO;
 import nextech.shoploc.services.categoryProduct.CategoryProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -23,7 +23,7 @@ public class CategoryProductController {
     private final CategoryProductService categoryService;
 
     @Autowired
-    public CategoryProductController(CategoryProductService categoryService) {
+    public CategoryProductController(final CategoryProductService categoryService) {
         this.categoryService = categoryService;
     }
 
@@ -39,13 +39,25 @@ public class CategoryProductController {
         }
     }
 
-    @GetMapping("/{id}")
+    @GetMapping
     @ApiOperation(value = "Get product category by ID", notes = "Retrieve a product category by its ID")
     public ResponseEntity<CategoryProductResponseDTO> getCategoryById(
-            @ApiParam(value = "ID of the product category", required = true) @PathVariable Long id) {
+            @ApiParam(value = "ID of the product category", required = true) @RequestParam Long id) {
         CategoryProductResponseDTO category = categoryService.getCategoryProductById(id);
         if (category != null) {
             return new ResponseEntity<>(category, HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+
+    @GetMapping("/merchant")
+    @ApiOperation(value = "Get product category by Merchant Id", notes = "Retrieve a product category by Merchant Id")
+    public ResponseEntity<List<CategoryProductResponseDTO>> getAllCategoryByMerchantId(
+            @ApiParam(value = "ID of the product category", required = true) @RequestParam Long idMerchant) {
+        List<CategoryProductResponseDTO> categories = categoryService.getCategoryProductByMerchantId(idMerchant);
+        if (categories != null) {
+            return new ResponseEntity<>(categories, HttpStatus.OK);
         } else {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
@@ -58,18 +70,18 @@ public class CategoryProductController {
         return new ResponseEntity<>(categories, HttpStatus.OK);
     }
 
-    @PutMapping("/{id}")
+    @PutMapping
     @ApiOperation(value = "Update product category", notes = "Update an existing product category by its ID")
     public ResponseEntity<CategoryProductResponseDTO> updateCategory(
-            @PathVariable Long id, @RequestBody CategoryProductRequestDTO categoryRequestDTO) {
+            @RequestParam Long id, @RequestBody CategoryProductRequestDTO categoryRequestDTO) {
         Optional<CategoryProductResponseDTO> updatedCategory =
                 Optional.ofNullable(categoryService.updateCategoryProduct(id, categoryRequestDTO));
         return updatedCategory.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping
     @ApiOperation(value = "Delete a MerchantsCategoriesProducs", notes = "Delete a MerchantsCategoriesProducs by their ID")
-    public ResponseEntity<Void> deleteMerchantsCategoriesProducs(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteCategory(@RequestParam Long id) {
         categoryService.deleteCategoryProduct(id);
         return ResponseEntity.noContent().build();
     }

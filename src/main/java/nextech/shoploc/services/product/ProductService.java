@@ -11,6 +11,10 @@ public interface ProductService {
 
     ProductResponseDTO getProductById(Long id);
 
+    List<ProductResponseDTO> getProductsByOrderLineId(Long categoryId);
+
+    List<ProductResponseDTO> getAllProductsOfCategory(Long categoryId);
+
     List<ProductResponseDTO> getAllProducts();
 
     void deleteProduct(Long id);

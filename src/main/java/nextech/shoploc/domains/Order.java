@@ -26,6 +26,9 @@ public class Order {
     @Column(name = "total_price")
     private double totalPrice;
 
+    @Column
+    private boolean isClickAndCollect;
+
     @Column(name = "creation_date")
     private LocalDateTime creationDate;
 

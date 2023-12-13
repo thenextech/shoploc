@@ -2,8 +2,8 @@ package nextech.shoploc.services.categoryProduct;
 
 import nextech.shoploc.domains.CategoryProduct;
 import nextech.shoploc.domains.Merchant;
-import nextech.shoploc.models.categoryProduct.CategoryProductRequestDTO;
-import nextech.shoploc.models.categoryProduct.CategoryProductResponseDTO;
+import nextech.shoploc.models.category_product.CategoryProductRequestDTO;
+import nextech.shoploc.models.category_product.CategoryProductResponseDTO;
 import nextech.shoploc.models.merchant.MerchantRequestDTO;
 import nextech.shoploc.repositories.CategoryProductRepository;
 import nextech.shoploc.repositories.MerchantRepository;
@@ -67,6 +67,19 @@ public class CategoryProductServiceImpl implements CategoryProductService {
                 .orElseThrow(() -> new NotFoundException("Category not found with ID: " + id));
         return modelMapperUtils.getModelMapper().map(category, CategoryProductResponseDTO.class);
     }
+
+    @Override
+    public List<CategoryProductResponseDTO> getCategoryProductByMerchantId(Long merchantId) {
+        Merchant merchant = merchantRepository.findById(merchantId)
+                .orElseThrow(() -> new NotFoundException("Merchant not found with ID: " + merchantId));
+
+        List<CategoryProduct> categories = categoryRepository.findAllByMerchant(merchant);
+
+        return categories.stream()
+                .map(category -> modelMapperUtils.getModelMapper().map(category, CategoryProductResponseDTO.class))
+                .collect(Collectors.toList());
+    }
+
 
 
     @Override

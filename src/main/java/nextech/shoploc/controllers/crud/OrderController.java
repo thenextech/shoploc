@@ -2,6 +2,7 @@ package nextech.shoploc.controllers.crud;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import io.swagger.v3.oas.annotations.Operation;
 import nextech.shoploc.models.order.OrderRequestDTO;
 import nextech.shoploc.models.order.OrderResponseDTO;
@@ -22,7 +23,7 @@ public class OrderController {
     private final OrderService orderService;
 
     @Autowired
-    public OrderController(OrderService orderService) {
+    public OrderController(final OrderService orderService) {
         this.orderService = orderService;
     }
 
@@ -48,6 +49,30 @@ public class OrderController {
         }
     }
 
+    @GetMapping("/merchant")
+    @ApiOperation(value = "Get orders of User Id", notes = "Retrieve a product category by Merchant Id")
+    public ResponseEntity<List<OrderResponseDTO>> getAllOrderOfMerchantId(
+            @ApiParam(value = "ID of the merchant ", required = true) @RequestParam Long userId) {
+        List<OrderResponseDTO> orders = orderService.getOrdersByMerchantId(userId);
+        if (orders != null) {
+            return new ResponseEntity<>(orders, HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+
+    @GetMapping("/client")
+    @ApiOperation(value = "Get orders of User Id", notes = "Retrieve a product category by user Id")
+    public ResponseEntity<List<OrderResponseDTO>> getAllOrderOfClient(
+            @ApiParam(value = "ID of the user ", required = true) @RequestParam Long clientId) {
+        List<OrderResponseDTO> orders = orderService.getAllOrderOfUser(clientId);
+        if (orders != null) {
+            return new ResponseEntity<>(orders, HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+
     @GetMapping("/all")
     @Operation(summary = "Get all Orders")
     public ResponseEntity<List<OrderResponseDTO>> getAllOrders() {
@@ -55,14 +80,14 @@ public class OrderController {
         return new ResponseEntity<>(orders, HttpStatus.OK);
     }
 
-    @PutMapping("/{id}")
+    @PutMapping("{id}")
     @ApiOperation(value = "Update an order", notes = "Update an existing order by its ID")
     public ResponseEntity<OrderResponseDTO> updateOrder(@PathVariable Long id, @RequestBody OrderRequestDTO orderRequestDTO) {
         Optional<OrderResponseDTO> updatedOrder = Optional.ofNullable(orderService.updateOrder(id, orderRequestDTO));
         return updatedOrder.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("{id}")
     @ApiOperation(value = "Delete an order", notes = "Delete an order by its ID")
     public ResponseEntity<Void> deleteOrder(@PathVariable Long id) {
         orderService.deleteOrder(id);

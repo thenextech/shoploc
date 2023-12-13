@@ -3,8 +3,8 @@ package nextech.shoploc.services.orderLine;
 import nextech.shoploc.domains.Order;
 import nextech.shoploc.domains.OrderLine;
 import nextech.shoploc.domains.Product;
-import nextech.shoploc.models.orderLine.OrderLineRequestDTO;
-import nextech.shoploc.models.orderLine.OrderLineResponseDTO;
+import nextech.shoploc.models.order_line.OrderLineRequestDTO;
+import nextech.shoploc.models.order_line.OrderLineResponseDTO;
 import nextech.shoploc.repositories.OrderLineRepository;
 import nextech.shoploc.repositories.OrderRepository;
 import nextech.shoploc.repositories.ProductRepository;
@@ -69,6 +69,18 @@ public class OrderLineServiceImpl implements OrderLineService {
                 .orElseThrow(() -> new NotFoundException("OrderLine not found with ID: " + id));
 
         return modelMapperUtils.getModelMapper().map(orderLine, OrderLineResponseDTO.class);
+    }
+
+    @Override
+    public List<OrderLineResponseDTO> getOrderLinesByOrderId(Long orderId) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new NotFoundException("Order not found with ID: " + orderId));
+
+        List<OrderLine> orderLines = orderLineRepository.findAllByOrder(order);
+
+        return orderLines.stream()
+                .map(orderLine -> modelMapperUtils.getModelMapper().map(orderLine, OrderLineResponseDTO.class))
+                .collect(Collectors.toList());
     }
 
     @Override

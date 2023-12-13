@@ -5,6 +5,7 @@ import io.swagger.annotations.ApiOperation;
 import nextech.shoploc.models.client.ClientRequestDTO;
 import nextech.shoploc.models.client.ClientResponseDTO;
 import nextech.shoploc.services.client.ClientService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -18,7 +19,8 @@ public class ClientController {
 
     private final ClientService clientService;
 
-    public ClientController(ClientService clientService) {
+    @Autowired
+    public ClientController(final ClientService clientService) {
         this.clientService = clientService;
     }
 

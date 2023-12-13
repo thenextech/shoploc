@@ -10,6 +10,10 @@ public interface OrderService {
 
     OrderResponseDTO getOrderById(Long id);
 
+    List<OrderResponseDTO> getAllOrderOfUser(Long userId);
+
+    List<OrderResponseDTO> getOrdersByMerchantId(Long merchantId);
+
     List<OrderResponseDTO> getAllOrders();
 
     void deleteOrder(Long id);

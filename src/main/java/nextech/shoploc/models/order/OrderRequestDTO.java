@@ -8,6 +8,7 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 public class OrderRequestDTO {
+    private boolean isClickAndCollect;
     private double totalPrice;
     private LocalDateTime creationDate;
     private Status status;

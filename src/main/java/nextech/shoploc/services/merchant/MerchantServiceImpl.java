@@ -1,13 +1,5 @@
 package nextech.shoploc.services.merchant;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Service;
-
 import nextech.shoploc.domains.Merchant;
 import nextech.shoploc.domains.enums.Status;
 import nextech.shoploc.models.merchant.MerchantRequestDTO;
@@ -18,6 +10,13 @@ import nextech.shoploc.utils.ModelMapperUtils;
 import nextech.shoploc.utils.exceptions.EmailAlreadyExistsException;
 import nextech.shoploc.utils.exceptions.MerchantNotFoundException;
 import nextech.shoploc.utils.exceptions.NotFoundException;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class MerchantServiceImpl implements MerchantService {

@@ -60,6 +60,30 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    public List<ProductResponseDTO> getProductsByOrderLineId(Long categoryId) {
+        CategoryProduct categoryProduct = categoryRepository.findById(categoryId)
+                .orElseThrow(() -> new NotFoundException("Category not found with ID: " + categoryId));
+
+        List<Product> products = productRepository.findAllByCategoryProduct(categoryProduct);
+
+        return products.stream()
+                .map(category -> modelMapperUtils.getModelMapper().map(category, ProductResponseDTO.class))
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<ProductResponseDTO> getAllProductsOfCategory(Long categoryId) {
+        CategoryProduct categoryProduct = categoryRepository.findById(categoryId)
+                .orElseThrow(() -> new NotFoundException("Category not found with ID: " + categoryId));
+
+        List<Product> products = productRepository.findAllByCategoryProduct(categoryProduct);
+
+        return products.stream()
+                .map(product -> modelMapperUtils.getModelMapper().map(product, ProductResponseDTO.class))
+                .collect(Collectors.toList());
+    }
+
+    @Override
     public List<ProductResponseDTO> getAllProducts() {
         List<Product> products = productRepository.findAll();
         return products.stream()
