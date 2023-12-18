@@ -28,6 +28,11 @@ spec:
                 configMapKeyRef:
                   key: postgres_host
                   name: backend-config
+            - name: DB_URL
+              valueFrom:
+                configMapKeyRef:
+                  key: postgres_url
+                  name: backend-config
             - name: DB_PORT
               valueFrom:
                 configMapKeyRef:
@@ -47,6 +52,26 @@ spec:
               valueFrom:
                 secretKeyRef:
                   key: postgres_password
+                  name: backend-secrets
+            - name: MAIL_HOST
+              valueFrom:
+                configMapKeyRef:
+                  key: mail_host
+                  name: backend-config
+            - name: MAIL_PORT
+              valueFrom:
+                configMapKeyRef:
+                  key: mail_port
+                  name: backend-config
+            - name: MAIL_EMAIL
+              valueFrom:
+                configMapKeyRef:
+                  key: mail_email
+                  name: backend-config
+            - name: MAIL_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  key: mail_password
                   name: backend-secrets
 ---
 apiVersion: v1
