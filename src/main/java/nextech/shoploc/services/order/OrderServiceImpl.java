@@ -18,11 +18,14 @@ import java.util.stream.Collectors;
 public class OrderServiceImpl implements OrderService {
 
     private final OrderRepository orderRepository;
+    private final UserRepository userRepository;
+
     private final ModelMapperUtils modelMapperUtils;
 
-    public OrderServiceImpl(OrderRepository orderRepository, ModelMapperUtils modelMapperUtils, UserRepository userRepository) {
+    public OrderServiceImpl(final OrderRepository orderRepository,final ModelMapperUtils modelMapperUtils, final UserRepository userRepository) {
         this.orderRepository = orderRepository;
         this.modelMapperUtils = modelMapperUtils;
+        this.userRepository = userRepository;
 
         // Mapper & Converter
         Converter<Long, User> convertIdentifierToUser = context -> userRepository.findById(context.getSource())
@@ -51,6 +54,25 @@ public class OrderServiceImpl implements OrderService {
         return modelMapperUtils.getModelMapper().map(order, OrderResponseDTO.class);
     }
 
+    @Override
+    public List<OrderResponseDTO> getAllOrderOfUser(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundException("Merchant not found with ID: " + userId));
+
+        List<Order> orders = orderRepository.findAllByUser(user);
+
+        return orders.stream()
+                .map(order -> modelMapperUtils.getModelMapper().map(order, OrderResponseDTO.class))
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<OrderResponseDTO> getOrdersByMerchantId(Long merchantId) {
+        List<Order> orders = orderRepository.findOrdersByMerchantId(merchantId);
+        return orders.stream()
+                .map(order -> modelMapperUtils.getModelMapper().map(order, OrderResponseDTO.class))
+                .collect(Collectors.toList());
+    }
     @Override
     public List<OrderResponseDTO> getAllOrders() {
         List<Order> orders = orderRepository.findAll();

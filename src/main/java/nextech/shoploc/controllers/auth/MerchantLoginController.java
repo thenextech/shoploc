@@ -1,23 +1,7 @@
 package nextech.shoploc.controllers.auth;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
 import nextech.shoploc.domains.enums.Status;
 import nextech.shoploc.domains.enums.UserTypes;
 import nextech.shoploc.models.merchant.MerchantRequestDTO;
@@ -28,23 +12,23 @@ import nextech.shoploc.services.merchant.MerchantService;
 import nextech.shoploc.services.user.UserService;
 import nextech.shoploc.utils.exceptions.EmailAlreadyExistsException;
 import nextech.shoploc.utils.exceptions.MerchantNotFoundException;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/merchant")
-@AllArgsConstructor
-@NoArgsConstructor
 public class MerchantLoginController {
 
-    @Autowired
-    private MerchantService merchantService;
-    @Autowired
-    private UserService userService;
-    @Autowired
-    private SessionManager sessionManager;
-    @Autowired
-    private VerificationCodeService verificationCodeService;
-    @Autowired
-    private EmailSenderService emailSenderService;
+    private final MerchantService merchantService;
+    private final UserService userService;
+    private final SessionManager sessionManager;
+    private final VerificationCodeService verificationCodeService;
+    private final EmailSenderService emailSenderService;
 
     private static final String LOGIN_ERROR = "Identifiant ou mot de passe incorrect";
     private static final String REGISTER_ERROR = "L'inscription a échoué. Veuillez réessayer.";
@@ -52,17 +36,29 @@ public class MerchantLoginController {
     private static final String VERIFICATION_CODE_ERROR = "Code de vérification incorrect. Veuillez réessayer.";
     private static final String INTEGRITY_ERROR = "Cette adresse e-mail existe déjà.";
     private static final String ACCOUNT_STATUS_ERROR = "Votre compte est ";
+    private static final String URL_MERCHANT_DASHBOARD = "/merchant/dashboard";
+    private static final String URL_MERCHANT_LOGIN = "/merchant/login";
+    private static final String ERROR_KEY = "error";
+
+    @Autowired
+    public MerchantLoginController(MerchantService merchantService, UserService userService, SessionManager sessionManager, VerificationCodeService verificationCodeService, EmailSenderService emailSenderService) {
+        this.merchantService = merchantService;
+        this.userService = userService;
+        this.sessionManager = sessionManager;
+        this.verificationCodeService = verificationCodeService;
+        this.emailSenderService = emailSenderService;
+    }
 
 
     @GetMapping("/login")
     public ResponseEntity<Map<String, Object>> login(HttpServletRequest request) {
         if (sessionManager.isUserConnected(request, "merchant")) {
             Map<String, Object> response = new HashMap<>();
-            response.put("url", "/merchant/dashboard");
+            response.put("url", URL_MERCHANT_DASHBOARD);
             return new ResponseEntity<>(response, HttpStatus.FOUND);
         } else {
             Map<String, Object> response = new HashMap<>();
-            response.put("url", "/merchant/login");
+            response.put("url", URL_MERCHANT_LOGIN);
             return new ResponseEntity<>(response, HttpStatus.OK);
         }
     }
@@ -82,15 +78,15 @@ public class MerchantLoginController {
                     res.put("url", "/merchant/verify");
                     return new ResponseEntity<>(res, HttpStatus.OK);
                 } else {
-                    res.put("error", ACCOUNT_STATUS_ERROR + merchantResponseDTO.getStatus());
+                    res.put(ERROR_KEY, ACCOUNT_STATUS_ERROR + merchantResponseDTO.getStatus());
                     return new ResponseEntity<>(res, HttpStatus.UNAUTHORIZED);
                 }
             } else {
-                res.put("error", LOGIN_ERROR);
+                res.put(ERROR_KEY, LOGIN_ERROR);
                 return new ResponseEntity<>(res, HttpStatus.UNAUTHORIZED);
             }
         } catch (Exception e) {
-            res.put("error", LOGIN_ERROR);
+            res.put(ERROR_KEY, LOGIN_ERROR);
             return new ResponseEntity<>(res, HttpStatus.UNAUTHORIZED);
         }
     }
@@ -104,26 +100,26 @@ public class MerchantLoginController {
 
     @PostMapping("/register")
     public ResponseEntity<Map<String, Object>> register(@RequestBody MerchantRequestDTO merchant) {
-    	Map<String, Object> response = new HashMap<>();
-    	try {
-        	merchant.setStatus(Status.INACTIVE);
+        Map<String, Object> response = new HashMap<>();
+        try {
+            merchant.setStatus(Status.INACTIVE);
             MerchantResponseDTO ard = merchantService.createMerchant(merchant);
             if (ard == null) {
-                response.put("error", REGISTER_ERROR);
+                response.put(ERROR_KEY, REGISTER_ERROR);
                 return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
             } else {
-                response.put("url", "/merchant/login");
-                //emailSenderService.sendPartnerVerificationEmail("shoploc.nts.ad@gmail.com", ard);
+                response.put("url", URL_MERCHANT_LOGIN);
+                emailSenderService.sendPartnerVerificationEmail("anissahed18@gmail.com", ard);
                 return new ResponseEntity<>(response, HttpStatus.OK);
-            }    
-    	} catch(EmailAlreadyExistsException e) {
-    		e.printStackTrace();
-    		response.put("error", INTEGRITY_ERROR);
-        	return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
-        } catch(Exception e) {
-        	e.printStackTrace();
-        	response.put("error", REGISTER_ERROR);
-        	return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
+            }
+        } catch (EmailAlreadyExistsException e) {
+            e.printStackTrace();
+            response.put(ERROR_KEY, INTEGRITY_ERROR);
+            return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
+        } catch (Exception e) {
+            e.printStackTrace();
+            response.put(ERROR_KEY, REGISTER_ERROR);
+            return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
         }
     }
 
@@ -136,8 +132,8 @@ public class MerchantLoginController {
             return new ResponseEntity<>(response, HttpStatus.OK);
         } else {
             Map<String, Object> response = new HashMap<>();
-            response.put("error", UNAUTHORIZED_ERROR);
-            response.put("url", "/merchant/login");
+            response.put(ERROR_KEY, UNAUTHORIZED_ERROR);
+            response.put("url", URL_MERCHANT_LOGIN);
             return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
         }
     }
@@ -146,7 +142,7 @@ public class MerchantLoginController {
     public ResponseEntity<Map<String, Object>> logout(HttpServletResponse response) {
         sessionManager.setUserAsDisconnected(response);
         Map<String, Object> res = new HashMap<>();
-        res.put("url", "/merchant/login");
+        res.put("url", URL_MERCHANT_LOGIN);
         return new ResponseEntity<>(res, HttpStatus.OK);
     }
 
@@ -158,21 +154,21 @@ public class MerchantLoginController {
         if (code.equals(savedCode)) {
             Long userId = sessionManager.getConnectedUserId(request);
             sessionManager.setUserAsConnected(userId, String.valueOf(UserTypes.merchant), response);
-            res.put("url", "/merchant/dashboard");
+            res.put("url", URL_MERCHANT_DASHBOARD);
             return new ResponseEntity<>(res, HttpStatus.OK);
         } else {
-            res.put("error", VERIFICATION_CODE_ERROR);
+            res.put(ERROR_KEY, VERIFICATION_CODE_ERROR);
             return new ResponseEntity<>(res, HttpStatus.UNAUTHORIZED);
         }
     }
-    
+
     @GetMapping("/activate/{merchantId}")
     public ResponseEntity<String> activateMerchant(@PathVariable Long merchantId) {
-    	try {
+        try {
             merchantService.activateMerchant(merchantId);
             return ResponseEntity.ok("Le compte du marchand a été activé avec succès.");
         } catch (MerchantNotFoundException e) {
-        	return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         } catch (Exception e) {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }

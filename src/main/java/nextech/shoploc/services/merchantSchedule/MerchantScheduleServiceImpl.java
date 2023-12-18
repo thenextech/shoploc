@@ -1,8 +1,8 @@
 package nextech.shoploc.services.merchantSchedule;
 
 import nextech.shoploc.domains.MerchantSchedule;
-import nextech.shoploc.models.merchantSchedule.MerchantScheduleRequestDTO;
-import nextech.shoploc.models.merchantSchedule.MerchantScheduleResponseDTO;
+import nextech.shoploc.models.merchant_schedule.MerchantScheduleRequestDTO;
+import nextech.shoploc.models.merchant_schedule.MerchantScheduleResponseDTO;
 import nextech.shoploc.repositories.MerchantScheduleRepository;
 import nextech.shoploc.utils.ModelMapperUtils;
 import nextech.shoploc.utils.exceptions.NotFoundException;

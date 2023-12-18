@@ -1,4 +1,4 @@
-package nextech.shoploc.models.merchantSchedule;
+package nextech.shoploc.models.merchant_schedule;
 
 import lombok.Getter;
 import lombok.Setter;

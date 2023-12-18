@@ -2,8 +2,6 @@ package nextech.shoploc.controllers.auth;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
 import nextech.shoploc.domains.enums.UserTypes;
 import nextech.shoploc.models.client.ClientRequestDTO;
 import nextech.shoploc.models.client.ClientResponseDTO;
@@ -22,26 +20,32 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/client")
-@AllArgsConstructor
-@NoArgsConstructor
 public class ClientLoginController {
 
-    @Autowired
-    private ClientService clientService;
-    @Autowired
-    private UserService userService;
-    @Autowired
-    private SessionManager sessionManager;
-    @Autowired
-    private VerificationCodeService verificationCodeService;
-    @Autowired
-    private EmailSenderService emailSenderService;
+    private final ClientService clientService;
+    private final UserService userService;
+    private final SessionManager sessionManager;
+    private final VerificationCodeService verificationCodeService;
+    private final EmailSenderService emailSenderService;
 
     private static final String LOGIN_ERROR = "Identifiant ou mot de passe incorrect";
     private static final String REGISTER_ERROR = "L'inscription a échoué. Veuillez réessayer.";
     private static final String INTEGRITY_ERROR = "Cette adresse e-mail existe déjà.";
     private static final String UNAUTHORIZED_ERROR = "Merci de vous authentifier pour accéder à cette ressource.";
     private static final String VERIFICATION_CODE_ERROR = "Code de vérification incorrect. Veuillez réessayer.";
+
+    @Autowired
+    public ClientLoginController(final ClientService clientService,
+                                 final UserService userService,
+                                 final SessionManager sessionManager,
+                                 final VerificationCodeService verificationCodeService,
+                                 final EmailSenderService emailSenderService) {
+        this.clientService = clientService;
+        this.userService = userService;
+        this.sessionManager = sessionManager;
+        this.verificationCodeService = verificationCodeService;
+        this.emailSenderService = emailSenderService;
+    }
 
     @GetMapping("/login")
     public ResponseEntity<Map<String, Object>> login(HttpServletRequest request) {
@@ -60,7 +64,7 @@ public class ClientLoginController {
     public ResponseEntity<Map<String, Object>> login(@RequestParam String email,
                                                      @RequestParam String password,
                                                      HttpServletResponse response
-    ){
+    ) {
         try {
             ClientResponseDTO clientResponseDTO = clientService.getClientByEmail(email);
             if (clientResponseDTO != null && userService.verifyPassword(password, clientResponseDTO.getPassword())) {

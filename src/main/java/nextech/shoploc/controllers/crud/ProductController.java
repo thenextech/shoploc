@@ -23,7 +23,7 @@ public class ProductController {
     private final ProductService productService;
 
     @Autowired
-    public ProductController(ProductService productService) {
+    public ProductController(final ProductService productService) {
         this.productService = productService;
     }
 
@@ -39,7 +39,7 @@ public class ProductController {
         }
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("{id}")
     @ApiOperation(value = "Get product product by ID", notes = "Retrieve a product product by its ID")
     public ResponseEntity<ProductResponseDTO> getProductById(
             @ApiParam(value = "ID of the product product", required = true) @PathVariable Long id) {
@@ -51,14 +51,38 @@ public class ProductController {
         }
     }
 
+    @GetMapping("/orderLine")
+    @ApiOperation(value = "Get product by orderLine Id", notes = "Retrieve a product category by orderLine Id")
+    public ResponseEntity<List<ProductResponseDTO>> getAllProductsByOrderLineId(
+            @ApiParam(value = "ID of the orderLine ", required = true) @RequestParam Long orderLineId) {
+        List<ProductResponseDTO> products = productService.getProductsByOrderLineId(orderLineId);
+        if (products != null) {
+            return new ResponseEntity<>(products, HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+
+    @GetMapping("/category")
+    @ApiOperation(value = "Get product by category Id", notes = "Retrieve a product category by category Id")
+    public ResponseEntity<List<ProductResponseDTO>> getAllProductsOfCategory(
+            @ApiParam(value = "ID of the product ", required = true) @RequestParam Long categoryId) {
+        List<ProductResponseDTO> products = productService.getAllProductsOfCategory(categoryId);
+        if (products != null) {
+            return new ResponseEntity<>(products, HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+
     @GetMapping("/all")
     @Operation(summary = "Get all Product Categories")
-    public ResponseEntity<List<ProductResponseDTO>> getAllCategories() {
+    public ResponseEntity<List<ProductResponseDTO>> getAllProducts() {
         List<ProductResponseDTO> categories = productService.getAllProducts();
         return new ResponseEntity<>(categories, HttpStatus.OK);
     }
 
-    @PutMapping("/{id}")
+    @PutMapping("{id}")
     @ApiOperation(value = "Update product product", notes = "Update an existing product product by its ID")
     public ResponseEntity<ProductResponseDTO> updateProduct(
             @PathVariable Long id, @RequestBody ProductRequestDTO productRequestDTO) {
@@ -67,9 +91,9 @@ public class ProductController {
         return updatedProduct.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    @DeleteMapping("/{id}")
-    @ApiOperation(value = "Delete a MerchantsCategoriesProducs", notes = "Delete a MerchantsCategoriesProducs by their ID")
-    public ResponseEntity<Void> deleteMerchantsCategoriesProducs(@PathVariable Long id) {
+    @DeleteMapping("{id}")
+    @ApiOperation(value = "Delete a product", notes = "Delete a MerchantsCategoriesProducs by their ID")
+    public ResponseEntity<Void> deleteProduct(@PathVariable Long id) {
         productService.deleteProduct(id);
         return ResponseEntity.noContent().build();
     }

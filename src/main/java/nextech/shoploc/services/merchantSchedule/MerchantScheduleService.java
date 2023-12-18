@@ -1,7 +1,7 @@
 package nextech.shoploc.services.merchantSchedule;
 
-import nextech.shoploc.models.merchantSchedule.MerchantScheduleRequestDTO;
-import nextech.shoploc.models.merchantSchedule.MerchantScheduleResponseDTO;
+import nextech.shoploc.models.merchant_schedule.MerchantScheduleRequestDTO;
+import nextech.shoploc.models.merchant_schedule.MerchantScheduleResponseDTO;
 
 import java.util.List;
 

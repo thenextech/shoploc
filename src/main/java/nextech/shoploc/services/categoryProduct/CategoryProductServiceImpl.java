@@ -2,8 +2,8 @@ package nextech.shoploc.services.categoryProduct;
 
 import nextech.shoploc.domains.CategoryProduct;
 import nextech.shoploc.domains.Merchant;
-import nextech.shoploc.models.categoryProduct.CategoryProductRequestDTO;
-import nextech.shoploc.models.categoryProduct.CategoryProductResponseDTO;
+import nextech.shoploc.models.category_product.CategoryProductRequestDTO;
+import nextech.shoploc.models.category_product.CategoryProductResponseDTO;
 import nextech.shoploc.models.merchant.MerchantRequestDTO;
 import nextech.shoploc.repositories.CategoryProductRepository;
 import nextech.shoploc.repositories.MerchantRepository;
@@ -28,7 +28,7 @@ public class CategoryProductServiceImpl implements CategoryProductService {
         this.merchantRepository = merchantRepository;
         this.modelMapperUtils = modelMapperUtils;
 
-        Converter<Long, Merchant> convertIdentifierToMerchant = context -> this.merchantRepository.findById(context.getSource())
+        Converter<Long, Merchant> convertIdentifierToMerchant = context -> this.merchantRepository.findMerchantByUserId(context.getSource())
                 .orElseThrow(() -> new NotFoundException("Merchant not found with ID: " + context.getSource()));
 
         //Mapping MerchantRequestDTO -> Merchant
@@ -37,16 +37,26 @@ public class CategoryProductServiceImpl implements CategoryProductService {
                         .using(convertIdentifierToMerchant)
                         .map(MerchantRequestDTO::getUserId, Merchant::setUserId));
 
+
         //Mapping CategoryProduct -> CategoryProductResponseDTO
-        this.modelMapperUtils.getModelMapper().typeMap(CategoryProduct.class, CategoryProductResponseDTO.class).addMappings(mapper -> mapper.map(src -> src.getMerchant().getUserId(), CategoryProductResponseDTO::setUserId));
+        this.modelMapperUtils.getModelMapper().typeMap(CategoryProduct.class, CategoryProductResponseDTO.class)
+                .addMappings(mapper -> mapper.map(src -> src.getMerchant().getUserId(), CategoryProductResponseDTO::setUserId));
+
         //Mapping CategoryProductRequestDTO -> CategoryProduct
-        this.modelMapperUtils.getModelMapper().typeMap(CategoryProductRequestDTO.class, CategoryProduct.class).addMappings(mapper -> mapper.map(src -> src.getUserId(), CategoryProduct::setMerchant));
+        this.modelMapperUtils.getModelMapper().typeMap(CategoryProductRequestDTO.class, CategoryProduct.class)
+                .addMappings(mapper -> mapper.when(ctx -> ctx.getSource() != null)
+                        .using(convertIdentifierToMerchant)
+                        .map(CategoryProductRequestDTO::getUserId, CategoryProduct::setMerchant));
+
+
     }
 
     @Override
     public CategoryProductResponseDTO createCategoryProduct(CategoryProductRequestDTO categoryRequestDTO) {
         CategoryProduct category = modelMapperUtils.getModelMapper().map(categoryRequestDTO, CategoryProduct.class);
-        category.setMerchant(merchantRepository.findMerchantByUserId(categoryRequestDTO.getUserId()).get());
+        if (merchantRepository.findMerchantByUserId(categoryRequestDTO.getUserId()).isPresent()) {
+            category.setMerchant(merchantRepository.findMerchantByUserId(categoryRequestDTO.getUserId()).get());
+        }
         category = categoryRepository.save(category);
         return modelMapperUtils.getModelMapper().map(category, CategoryProductResponseDTO.class);
     }
@@ -58,6 +68,19 @@ public class CategoryProductServiceImpl implements CategoryProductService {
         return modelMapperUtils.getModelMapper().map(category, CategoryProductResponseDTO.class);
     }
 
+    @Override
+    public List<CategoryProductResponseDTO> getCategoryProductByMerchantId(Long merchantId) {
+        Merchant merchant = merchantRepository.findById(merchantId)
+                .orElseThrow(() -> new NotFoundException("Merchant not found with ID: " + merchantId));
+
+        List<CategoryProduct> categories = categoryRepository.findAllByMerchant(merchant);
+
+        return categories.stream()
+                .map(category -> modelMapperUtils.getModelMapper().map(category, CategoryProductResponseDTO.class))
+                .collect(Collectors.toList());
+    }
+
+
 
     @Override
     public List<CategoryProductResponseDTO> getAllCategories() {
@@ -66,7 +89,7 @@ public class CategoryProductServiceImpl implements CategoryProductService {
                 .map(category -> modelMapperUtils.getModelMapper().map(category, CategoryProductResponseDTO.class))
                 .collect(Collectors.toList());
     }
-    
+
     @Override
     public void deleteCategoryProduct(Long id) {
         if (!categoryRepository.existsById(id)) {
@@ -79,7 +102,6 @@ public class CategoryProductServiceImpl implements CategoryProductService {
     public CategoryProductResponseDTO updateCategoryProduct(Long id, CategoryProductRequestDTO categoryRequestDTO) {
         CategoryProduct category = categoryRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Category not found with ID: " + id));
-
         modelMapperUtils.getModelMapper().map(categoryRequestDTO, category);
         category = categoryRepository.save(category);
         return modelMapperUtils.getModelMapper().map(category, CategoryProductResponseDTO.class);

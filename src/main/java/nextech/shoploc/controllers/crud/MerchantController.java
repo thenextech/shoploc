@@ -22,7 +22,7 @@ public class MerchantController {
     private final MerchantService merchantService;
 
     @Autowired
-    public MerchantController(MerchantService merchantService) {
+    public MerchantController(final MerchantService merchantService) {
         this.merchantService = merchantService;
     }
 

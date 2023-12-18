@@ -26,6 +26,9 @@ public class Order {
     @Column(name = "total_price")
     private double totalPrice;
 
+    @Column
+    private boolean isClickAndCollect;
+
     @Column(name = "creation_date")
     private LocalDateTime creationDate;
 
@@ -35,6 +38,9 @@ public class Order {
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
+
+    @OneToOne(mappedBy = "order")
+    private Invoice invoice;
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<OrderLine> orderLines = new ArrayList<>();

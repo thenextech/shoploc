@@ -2,9 +2,10 @@ package nextech.shoploc.controllers.crud;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import io.swagger.v3.oas.annotations.Operation;
-import nextech.shoploc.models.orderLine.OrderLineRequestDTO;
-import nextech.shoploc.models.orderLine.OrderLineResponseDTO;
+import nextech.shoploc.models.order_line.OrderLineRequestDTO;
+import nextech.shoploc.models.order_line.OrderLineResponseDTO;
 import nextech.shoploc.services.orderLine.OrderLineService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -22,7 +23,7 @@ public class OrderLineController {
     private final OrderLineService orderLineService;
 
     @Autowired
-    public OrderLineController(OrderLineService orderLineService) {
+    public OrderLineController(final OrderLineService orderLineService) {
         this.orderLineService = orderLineService;
     }
 
@@ -47,6 +48,19 @@ public class OrderLineController {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
+
+    @GetMapping
+    @ApiOperation(value = "Get orderLine by order Id", notes = "Retrieve a order Lines by Order Id")
+    public ResponseEntity<List<OrderLineResponseDTO>> getAllCategoryByOrderId(
+            @ApiParam(value = "ID of the order", required = true) @RequestParam Long orderId) {
+        List<OrderLineResponseDTO> orderLines = orderLineService.getOrderLinesByOrderId(orderId);
+        if (orderLines != null) {
+            return new ResponseEntity<>(orderLines, HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+
 
     @GetMapping("/all")
     @Operation(summary = "Get all Order Lines")

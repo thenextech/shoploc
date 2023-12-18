@@ -1,19 +1,27 @@
 package nextech.shoploc.controllers.crud;
 
+import java.util.List;
+import java.util.Optional;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.v3.oas.annotations.Operation;
-import nextech.shoploc.models.categoryProduct.CategoryProductRequestDTO;
-import nextech.shoploc.models.categoryProduct.CategoryProductResponseDTO;
+import nextech.shoploc.models.category_product.CategoryProductRequestDTO;
+import nextech.shoploc.models.category_product.CategoryProductResponseDTO;
 import nextech.shoploc.services.categoryProduct.CategoryProductService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/merchant/category")
@@ -23,7 +31,7 @@ public class CategoryProductController {
     private final CategoryProductService categoryService;
 
     @Autowired
-    public CategoryProductController(CategoryProductService categoryService) {
+    public CategoryProductController(final CategoryProductService categoryService) {
         this.categoryService = categoryService;
     }
 
@@ -33,19 +41,31 @@ public class CategoryProductController {
             @RequestBody CategoryProductRequestDTO categoryRequestDTO) {
         CategoryProductResponseDTO createdCategory = categoryService.createCategoryProduct(categoryRequestDTO);
         if (createdCategory != null) {
-            return new ResponseEntity<>(createdCategory, HttpStatus.CREATED);
+            return new ResponseEntity<>(createdCategory, HttpStatus.OK);
         } else {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
-    @GetMapping("/{id}")
+    @GetMapping
     @ApiOperation(value = "Get product category by ID", notes = "Retrieve a product category by its ID")
     public ResponseEntity<CategoryProductResponseDTO> getCategoryById(
-            @ApiParam(value = "ID of the product category", required = true) @PathVariable Long id) {
+            @ApiParam(value = "ID of the product category", required = true) @RequestParam Long id) {
         CategoryProductResponseDTO category = categoryService.getCategoryProductById(id);
         if (category != null) {
             return new ResponseEntity<>(category, HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+
+    @GetMapping("/merchant")
+    @ApiOperation(value = "Get product category by Merchant Id", notes = "Retrieve a product category by Merchant Id")
+    public ResponseEntity<List<CategoryProductResponseDTO>> getAllCategoryByMerchantId(
+            @ApiParam(value = "ID of the product category", required = true) @RequestParam Long idMerchant) {
+        List<CategoryProductResponseDTO> categories = categoryService.getCategoryProductByMerchantId(idMerchant);
+        if (categories != null) {
+            return new ResponseEntity<>(categories, HttpStatus.OK);
         } else {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
@@ -58,18 +78,18 @@ public class CategoryProductController {
         return new ResponseEntity<>(categories, HttpStatus.OK);
     }
 
-    @PutMapping("/{id}")
+    @PutMapping
     @ApiOperation(value = "Update product category", notes = "Update an existing product category by its ID")
     public ResponseEntity<CategoryProductResponseDTO> updateCategory(
-            @PathVariable Long id, @RequestBody CategoryProductRequestDTO categoryRequestDTO) {
+            @RequestParam Long id, @RequestBody CategoryProductRequestDTO categoryRequestDTO) {
         Optional<CategoryProductResponseDTO> updatedCategory =
                 Optional.ofNullable(categoryService.updateCategoryProduct(id, categoryRequestDTO));
         return updatedCategory.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping
     @ApiOperation(value = "Delete a MerchantsCategoriesProducs", notes = "Delete a MerchantsCategoriesProducs by their ID")
-    public ResponseEntity<Void> deleteMerchantsCategoriesProducs(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteCategory(@RequestParam Long id) {
         categoryService.deleteCategoryProduct(id);
         return ResponseEntity.noContent().build();
     }
