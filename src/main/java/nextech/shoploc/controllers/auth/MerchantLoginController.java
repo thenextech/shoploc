@@ -69,13 +69,13 @@ public class MerchantLoginController {
         try {
             MerchantResponseDTO merchantResponseDTO = merchantService.getMerchantByEmail(email);
             if (merchantResponseDTO != null && userService.verifyPassword(password, merchantResponseDTO.getPassword())) {
-                if (merchantResponseDTO.getStatus().equals(Status.ACTIVE)) {
+                if (merchantResponseDTO.getStatus().equals(Status.INACTIVE)) {
                     // Envoie de code par mail
                     String verificationCode = verificationCodeService.generateVerificationCode();
-                    emailSenderService.sendHtmlEmail(email, verificationCode);
+                    //emailSenderService.sendHtmlEmail(email, verificationCode);
                     // COOKIES pour stocker les informations de session
                     sessionManager.setUserToVerify(merchantResponseDTO.getUserId(), UserTypes.merchant.toString(), verificationCode, response);
-                    res.put("url", "/merchant/verify");
+                    res.put("url", "/merchant/dashboard");
                     return new ResponseEntity<>(res, HttpStatus.OK);
                 } else {
                     res.put(ERROR_KEY, ACCOUNT_STATUS_ERROR + merchantResponseDTO.getStatus());
@@ -109,7 +109,7 @@ public class MerchantLoginController {
                 return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
             } else {
                 response.put("url", URL_MERCHANT_LOGIN);
-                emailSenderService.sendPartnerVerificationEmail("anissahed18@gmail.com", ard);
+                //emailSenderService.sendPartnerVerificationEmail("anissahed18@gmail.com", ard);
                 return new ResponseEntity<>(response, HttpStatus.OK);
             }
         } catch (EmailAlreadyExistsException e) {
