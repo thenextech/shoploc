@@ -59,6 +59,7 @@ public class OrderLineServiceImpl implements OrderLineService {
     public OrderLineResponseDTO createOrderLine(
             final OrderLineRequestDTO orderLineRequestDTO) {
         OrderLine orderLine = modelMapperUtils.getModelMapper().map(orderLineRequestDTO, OrderLine.class);
+        orderLine.setUnitPrice(orderLine.getProduct().getPrice());
         orderLine = orderLineRepository.save(orderLine);
         return modelMapperUtils.getModelMapper().map(orderLine, OrderLineResponseDTO.class);
     }
