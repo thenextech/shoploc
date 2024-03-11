@@ -15,4 +15,6 @@ public interface LoyaltyCardService {
     void deleteLoyaltyCard(Long id);
 
     LoyaltyCardResponseDTO updateLoyaltyCard(Long id, LoyaltyCardRequestDTO loyaltyCardRequestDTO);
+
+    LoyaltyCardResponseDTO getLoyaltyCardByClient(Long userId);
 }

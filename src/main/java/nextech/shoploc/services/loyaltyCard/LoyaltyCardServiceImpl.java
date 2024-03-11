@@ -1,9 +1,11 @@
 package nextech.shoploc.services.loyaltyCard;
 
+import nextech.shoploc.domains.Client;
 import nextech.shoploc.domains.LoyaltyCard;
 import nextech.shoploc.domains.User;
 import nextech.shoploc.models.loyalty_card.LoyaltyCardRequestDTO;
 import nextech.shoploc.models.loyalty_card.LoyaltyCardResponseDTO;
+import nextech.shoploc.repositories.ClientRepository;
 import nextech.shoploc.repositories.LoyaltyCardRepository;
 import nextech.shoploc.repositories.UserRepository;
 import nextech.shoploc.utils.ModelMapperUtils;
@@ -18,11 +20,14 @@ import java.util.stream.Collectors;
 public class LoyaltyCardServiceImpl implements LoyaltyCardService {
 
     private final LoyaltyCardRepository loyaltyCardRepository;
+    private final ClientRepository clientRepository;
+
     private final ModelMapperUtils modelMapperUtils;
 
-    public LoyaltyCardServiceImpl(LoyaltyCardRepository loyaltyCardRepository, ModelMapperUtils modelMapperUtils, UserRepository userRepository) {
+    public LoyaltyCardServiceImpl(LoyaltyCardRepository loyaltyCardRepository, ModelMapperUtils modelMapperUtils, UserRepository userRepository, ClientRepository clientRepository) {
         this.loyaltyCardRepository = loyaltyCardRepository;
         this.modelMapperUtils = modelMapperUtils;
+        this.clientRepository = clientRepository;
 
         // Mapper & Converter
         Converter<Long, User> convertIdentifierToUser = context -> userRepository.findById(context.getSource())
@@ -39,6 +44,7 @@ public class LoyaltyCardServiceImpl implements LoyaltyCardService {
 
     @Override
     public LoyaltyCardResponseDTO createLoyaltyCard(LoyaltyCardRequestDTO loyaltyCardRequestDTO) {
+
         LoyaltyCard loyaltyCard = modelMapperUtils.getModelMapper().map(loyaltyCardRequestDTO, LoyaltyCard.class);
         loyaltyCard = loyaltyCardRepository.save(loyaltyCard);
         return modelMapperUtils.getModelMapper().map(loyaltyCard, LoyaltyCardResponseDTO.class);
@@ -76,4 +82,17 @@ public class LoyaltyCardServiceImpl implements LoyaltyCardService {
         loyaltyCard = loyaltyCardRepository.save(loyaltyCard);
         return modelMapperUtils.getModelMapper().map(loyaltyCard, LoyaltyCardResponseDTO.class);
     }
+
+    @Override
+    public LoyaltyCardResponseDTO getLoyaltyCardByClient(Long userId) {
+        Client client = clientRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundException("Client not found with ID: " + userId));
+
+        LoyaltyCard loyaltyCard = loyaltyCardRepository.getLoyaltyCardByClient(client)
+                .orElseThrow(() -> new NotFoundException("LoyaltyCard not found for client with ID: " + userId));
+
+        return modelMapperUtils.getModelMapper().map(loyaltyCard, LoyaltyCardResponseDTO.class);
+    }
+
+
 }

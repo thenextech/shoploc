@@ -1,8 +1,8 @@
 package nextech.shoploc.services.auth;
 
-import java.util.Random;
-
 import org.springframework.stereotype.Service;
+
+import java.util.Random;
 
 @Service
 public class VerificationCodeService {

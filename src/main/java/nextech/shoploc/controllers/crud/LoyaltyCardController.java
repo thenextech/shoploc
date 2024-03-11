@@ -69,4 +69,15 @@ public class LoyaltyCardController {
         return ResponseEntity.noContent().build();
     }
 
+
+    @PutMapping("/change-points")
+    @ApiOperation(value = "Update an loyaltyCard", notes = "Update an existing loyaltyCard by its ID")
+    public ResponseEntity<LoyaltyCardResponseDTO> updatePointsLoyaltyCard( @RequestBody LoyaltyCardRequestDTO loyaltyCardRequestDTO) {
+        Optional<LoyaltyCardResponseDTO> updatedLoyaltyCard = Optional.ofNullable(loyaltyCardService.getLoyaltyCardByClient(loyaltyCardRequestDTO.getUserId()));
+        Double pointsBefore=updatedLoyaltyCard.get().getPoints();
+        Double pointsToChange=loyaltyCardRequestDTO.getPoints();
+        updatedLoyaltyCard.get().setPoints(pointsBefore+pointsToChange);
+        return updatedLoyaltyCard.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
 }
