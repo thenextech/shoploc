@@ -1,8 +1,10 @@
 package nextech.shoploc.models.benefits;
 
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
-@Data
+@Getter
+@Setter
 public class BenefitsResponseDTO extends BenefitsRequestDTO {
 
     private Long benefitsId;
