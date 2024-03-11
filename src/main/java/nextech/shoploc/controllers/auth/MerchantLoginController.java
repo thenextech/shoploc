@@ -72,6 +72,7 @@ public class MerchantLoginController {
                 if (merchantResponseDTO.getStatus().equals(Status.INACTIVE)) {
                     // Envoie de code par mail
                     String verificationCode = verificationCodeService.generateVerificationCode();
+                    System.out.println(verificationCode);
                     //emailSenderService.sendHtmlEmail(email, verificationCode);
                     // COOKIES pour stocker les informations de session
                     sessionManager.setUserToVerify(merchantResponseDTO.getUserId(), UserTypes.merchant.toString(), verificationCode, response);

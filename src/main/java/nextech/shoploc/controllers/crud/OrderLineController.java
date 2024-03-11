@@ -1,19 +1,34 @@
 package nextech.shoploc.controllers.crud;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.v3.oas.annotations.Operation;
 import nextech.shoploc.models.order_line.OrderLineRequestDTO;
 import nextech.shoploc.models.order_line.OrderLineResponseDTO;
+import nextech.shoploc.services.categoryProduct.CategoryProductService;
+import nextech.shoploc.services.merchant.MerchantService;
 import nextech.shoploc.services.orderLine.OrderLineService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
-import java.util.Optional;
+import nextech.shoploc.services.product.ProductService;
 
 @RestController
 @RequestMapping("/orderlines")
@@ -21,16 +36,29 @@ import java.util.Optional;
 public class OrderLineController {
 
     private final OrderLineService orderLineService;
+    
+    private final ProductService productService;
+    
+    private final CategoryProductService categoryService;
+    
+    private final MerchantService merchantService;
 
     @Autowired
-    public OrderLineController(final OrderLineService orderLineService) {
+    public OrderLineController(final OrderLineService orderLineService,
+    		final ProductService productService,
+    		final CategoryProductService categoryService,
+    		final MerchantService merchantService) {
         this.orderLineService = orderLineService;
+        this.productService = productService;
+        this.categoryService = categoryService;
+        this.merchantService = merchantService;
     }
 
     @PostMapping("/create")
     @ApiOperation(value = "Create an order line", notes = "Creates a new order line")
     public ResponseEntity<OrderLineResponseDTO> createOrderLine(@RequestBody OrderLineRequestDTO orderLineRequestDTO) {
-        OrderLineResponseDTO createdOrderLine = orderLineService.createOrderLine(orderLineRequestDTO);
+        System.out.println(orderLineRequestDTO);
+    	OrderLineResponseDTO createdOrderLine = orderLineService.createOrderLine(orderLineRequestDTO);
         if (createdOrderLine != null) {
             return new ResponseEntity<>(createdOrderLine, HttpStatus.CREATED);
         } else {
@@ -40,10 +68,10 @@ public class OrderLineController {
 
     @GetMapping("/{id}")
     @ApiOperation(value = "Get order line by ID", notes = "Retrieve an order line by its ID")
-    public ResponseEntity<OrderLineResponseDTO> getOrderLineById(@PathVariable Long id) {
-        OrderLineResponseDTO orderLine = orderLineService.getOrderLineById(id);
-        if (orderLine != null) {
-            return new ResponseEntity<>(orderLine, HttpStatus.OK);
+    public ResponseEntity<List<OrderLineResponseDTO>> getOrderLineById(@PathVariable Long id) {
+    	List<OrderLineResponseDTO> orderLines = orderLineService.getOrderLinesByMerchantId(id);
+        if (!orderLines.isEmpty()) {
+            return new ResponseEntity<>(orderLines, HttpStatus.OK);
         } else {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
@@ -82,4 +110,23 @@ public class OrderLineController {
         orderLineService.deleteOrderLine(id);
         return ResponseEntity.noContent().build();
     }
+    
+    @GetMapping("/m/{id}")
+    @ApiOperation(value = "Get order line by ID", notes = "Retrieve an order line by its ID")
+    public ResponseEntity<Map<Long, List<OrderLineResponseDTO>>> getAllMerchantOrderLines(@PathVariable Long id) {
+        List<OrderLineResponseDTO> orderLines = orderLineService.getOrderLinesByMerchantId(id);
+        Map<Long, List<OrderLineResponseDTO>> orderLinesMap = new HashMap<>();
+
+        for (OrderLineResponseDTO orderLine : orderLines) {
+            Long orderId = orderLine.getOrderId();
+            orderLinesMap.computeIfAbsent(orderId, k -> new ArrayList<>()).add(orderLine);
+        }
+
+        if (!orderLinesMap.isEmpty()) {
+            return new ResponseEntity<>(orderLinesMap, HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+
 }

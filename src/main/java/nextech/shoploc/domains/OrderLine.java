@@ -25,9 +25,18 @@ public class OrderLine {
     @ManyToOne
     @JoinColumn(name = "product_id", nullable = false)
     private Product product;
+    
+    private String productName;
+    
+    private String clientName;
 
     private int quantity;
+    
+    private String orderStatus;
 
     @Column(name = "unit_price")
     private double unitPrice;
+    
+   @Column(name = "merchant_id", nullable = false)
+   private Long merchantId;
 }

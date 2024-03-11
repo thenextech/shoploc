@@ -30,7 +30,7 @@ public class OrderController {
     @PostMapping("/create")
     @ApiOperation(value = "Create an order", notes = "Creates a new order")
     public ResponseEntity<OrderResponseDTO> createOrder(@RequestBody OrderRequestDTO orderRequestDTO) {
-        OrderResponseDTO createdOrder = orderService.createOrder(orderRequestDTO);
+    	OrderResponseDTO createdOrder = orderService.createOrder(orderRequestDTO);
         if (createdOrder != null) {
             return new ResponseEntity<>(createdOrder, HttpStatus.CREATED);
         } else {
@@ -80,7 +80,7 @@ public class OrderController {
         return new ResponseEntity<>(orders, HttpStatus.OK);
     }
 
-    @PutMapping("{id}")
+    @PutMapping("/{id}")
     @ApiOperation(value = "Update an order", notes = "Update an existing order by its ID")
     public ResponseEntity<OrderResponseDTO> updateOrder(@PathVariable Long id, @RequestBody OrderRequestDTO orderRequestDTO) {
         Optional<OrderResponseDTO> updatedOrder = Optional.ofNullable(orderService.updateOrder(id, orderRequestDTO));

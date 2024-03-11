@@ -11,7 +11,6 @@ public enum Status {
     CANCELLED,
     USED,
     OUT_OF_STOCK,
-    AVAILABLE
-
-    
+    AVAILABLE,
+    PAID
 }

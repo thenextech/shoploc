@@ -10,6 +10,8 @@ public interface OrderLineService {
     OrderLineResponseDTO createOrderLine(OrderLineRequestDTO orderLineRequestDTO);
 
     OrderLineResponseDTO getOrderLineById(Long id);
+    
+    List<OrderLineResponseDTO> getOrderLinesByMerchantId(Long merchantId);
 
     List<OrderLineResponseDTO> getOrderLinesByOrderId(Long orderId);
 

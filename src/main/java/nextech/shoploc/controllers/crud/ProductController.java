@@ -39,7 +39,7 @@ public class ProductController {
         }
     }
 
-    @GetMapping("{id}")
+    @GetMapping("/{id}")
     @ApiOperation(value = "Get product product by ID", notes = "Retrieve a product product by its ID")
     public ResponseEntity<ProductResponseDTO> getProductById(
             @ApiParam(value = "ID of the product product", required = true) @PathVariable Long id) {
@@ -82,7 +82,7 @@ public class ProductController {
         return new ResponseEntity<>(categories, HttpStatus.OK);
     }
 
-    @PutMapping("{id}")
+    @PutMapping("/{id}")
     @ApiOperation(value = "Update product product", notes = "Update an existing product product by its ID")
     public ResponseEntity<ProductResponseDTO> updateProduct(
             @PathVariable Long id, @RequestBody ProductRequestDTO productRequestDTO) {

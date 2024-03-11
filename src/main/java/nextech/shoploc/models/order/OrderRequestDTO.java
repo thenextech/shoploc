@@ -11,6 +11,6 @@ public class OrderRequestDTO {
     private boolean isClickAndCollect;
     private double totalPrice;
     private LocalDateTime creationDate;
-    private Status status;
+    private Status status; 
     private Long userId;
 }
