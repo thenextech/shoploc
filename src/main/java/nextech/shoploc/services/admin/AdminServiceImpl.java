@@ -4,21 +4,32 @@ import nextech.shoploc.domains.Admin;
 import nextech.shoploc.models.admin.AdminRequestDTO;
 import nextech.shoploc.models.admin.AdminResponseDTO;
 import nextech.shoploc.repositories.AdminRepository;
+import nextech.shoploc.repositories.OrderRepository;
+import nextech.shoploc.repositories.UserRepository;
 import nextech.shoploc.utils.ModelMapperUtils;
 import nextech.shoploc.utils.exceptions.NotFoundException;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
 public class AdminServiceImpl implements AdminService {
     private final AdminRepository adminRepository;
     private final ModelMapperUtils modelMapperUtils;
+    private final OrderRepository orderRepository;
+    private final UserRepository userRepository;
 
-    public AdminServiceImpl(AdminRepository adminRepository, ModelMapperUtils modelMapperUtils) {
+    public AdminServiceImpl(AdminRepository adminRepository, ModelMapperUtils modelMapperUtils, OrderRepository orderRepository, UserRepository userRepository) {
         this.adminRepository = adminRepository;
         this.modelMapperUtils = modelMapperUtils;
+        this.orderRepository = orderRepository;
+        this.userRepository = userRepository;
     }
 
     @Override
@@ -67,5 +78,24 @@ public class AdminServiceImpl implements AdminService {
         admin = adminRepository.save(admin);
         return modelMapperUtils.getModelMapper().map(admin, AdminResponseDTO.class);
     }
+
+    @Override
+    public Map<String, Object> getSalesStatistics(String startDate, String endDate) {
+        LocalDateTime startDateTime = parseDateTime(startDate, LocalDateTime.now().with(LocalTime.MIN));
+        LocalDateTime endDateTime = parseDateTime(endDate, LocalDateTime.now().with(LocalTime.MAX));
+
+        Map<String, Object> statisticsMap = new HashMap<>();
+
+        return statisticsMap;
+    }
+
+    private LocalDateTime parseDateTime(String dateTimeString, LocalDateTime defaultValue) {
+        if (dateTimeString == null || dateTimeString.isEmpty()) {
+            return defaultValue;
+        }
+        return LocalDateTime.parse(dateTimeString, DateTimeFormatter.ISO_DATE_TIME);
+    }
+
+
 }
 

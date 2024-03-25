@@ -1,12 +1,5 @@
 package nextech.shoploc.services.orderLine;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
-import org.modelmapper.Converter;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
 import nextech.shoploc.domains.Order;
 import nextech.shoploc.domains.OrderLine;
 import nextech.shoploc.domains.Product;
@@ -19,6 +12,12 @@ import nextech.shoploc.repositories.ProductRepository;
 import nextech.shoploc.services.product.ProductService;
 import nextech.shoploc.utils.ModelMapperUtils;
 import nextech.shoploc.utils.exceptions.NotFoundException;
+import org.modelmapper.Converter;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class OrderLineServiceImpl implements OrderLineService {

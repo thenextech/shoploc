@@ -1,24 +1,5 @@
 package nextech.shoploc.controllers.crud;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -29,6 +10,12 @@ import nextech.shoploc.services.categoryProduct.CategoryProductService;
 import nextech.shoploc.services.merchant.MerchantService;
 import nextech.shoploc.services.orderLine.OrderLineService;
 import nextech.shoploc.services.product.ProductService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.*;
 
 @RestController
 @RequestMapping("/orderlines")
@@ -57,7 +44,6 @@ public class OrderLineController {
     @PostMapping("/create")
     @ApiOperation(value = "Create an order line", notes = "Creates a new order line")
     public ResponseEntity<OrderLineResponseDTO> createOrderLine(@RequestBody OrderLineRequestDTO orderLineRequestDTO) {
-        System.out.println(orderLineRequestDTO);
     	OrderLineResponseDTO createdOrderLine = orderLineService.createOrderLine(orderLineRequestDTO);
         if (createdOrderLine != null) {
             return new ResponseEntity<>(createdOrderLine, HttpStatus.CREATED);

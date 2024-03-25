@@ -25,6 +25,18 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
     Integer nombreClientsToMerchantId(@Param("merchantId") Long merchantId);
 
 
+    @Query("SELECT o.creationDate, COALESCE(SUM(ol.quantity * ol.unitPrice), 0) " +
+            "FROM OrderLine ol " +
+            "JOIN ol.order o " +
+            "JOIN ol.product p " +
+            "JOIN p.categoryProduct cp " +
+            "WHERE cp.merchant.userId = :merchantId AND o.creationDate BETWEEN :startDate AND :endDate " +
+            "GROUP BY o.creationDate")
+    List<Object[]> calculateRevenuePerDaysBetweenDates(@Param("merchantId") Long merchantId,
+                                                       @Param("startDate") LocalDateTime startDate,
+                                                       @Param("endDate") LocalDateTime endDate);
+
+
     @Query("SELECT o FROM Order o " +
             "JOIN o.orderLines ol " +
             "JOIN ol.product p JOIN p.categoryProduct cp " +
@@ -45,17 +57,15 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
                                  @Param("endDate") LocalDateTime endDate);
 
     // Calcule le chiffre d'affaires quotidien pour un marchand dans une plage de dates
-    @Query("SELECT o.creationDate, COALESCE(SUM(ol.quantity * ol.unitPrice), 0) " +
+    @Query("SELECT COALESCE(SUM(ol.quantity * ol.unitPrice), 0) " +
             "FROM OrderLine ol " +
             "JOIN ol.order o " +
             "JOIN ol.product p " +
             "JOIN p.categoryProduct cp " +
-            "WHERE cp.merchant.userId = :merchantId AND o.creationDate BETWEEN :startDate AND :endDate " +
-            "GROUP BY o.creationDate")
-    Double calculateDailyRevenue(@Param("merchantId") Long merchantId,
-                                         @Param("startDate") LocalDateTime startDate,
-                                         @Param("endDate") LocalDateTime endDate);
-
+            "WHERE cp.merchant.userId = :merchantId AND o.creationDate >= :startDate AND o.creationDate <= :endDate ")
+    Double calculateTodayRevenue(@Param("merchantId") Long merchantId,
+                                 @Param("startDate") LocalDateTime startDate,
+                                 @Param("endDate") LocalDateTime endDate);
 
 
     @Query("SELECT COALESCE(SUM(ol.quantity * ol.unitPrice), 0) " +
@@ -138,6 +148,14 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
                                       @Param("startDate") LocalDateTime startDate,
                                       @Param("endDate") LocalDateTime endDate);
 
+    @Query("SELECT COUNT(DISTINCT o.user.userId) " +
+            "FROM Order o " +
+            "JOIN o.orderLines ol " +
+            "JOIN ol.product p " +
+            "JOIN p.categoryProduct cp " +
+            "WHERE o.creationDate BETWEEN :startDate AND :endDate")
+    Integer nombreTotalClients(@Param("startDate") LocalDateTime startDate,
+                               @Param("endDate") LocalDateTime endDate);
 
     // Classement des produits les plus consultés
     @Query("SELECT p.name " +
@@ -163,7 +181,22 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
                                            @Param("startDate") LocalDateTime startDate,
                                            @Param("endDate") LocalDateTime endDate);
 
-}
 
+    @Query("SELECT COALESCE(SUM(ol.quantity * ol.unitPrice), 0) " +
+            "FROM OrderLine ol " +
+            "JOIN ol.order o " +
+            "JOIN ol.product p " +
+            "JOIN p.categoryProduct cp " +
+            "WHERE cp.merchant.userId = :merchantId")
+    Double calculateTotalRevenueComplet(@Param("merchantId") Long merchantId);
+
+
+    @Query("SELECT COUNT(o) FROM Order o WHERE o.user.userId = :userId")
+    Long countByUserId(@Param("userId") Long userId);
+
+    @Query("SELECT COUNT(o) FROM Order o WHERE o.user.userId = :userId AND o.creationDate BETWEEN :startDate AND :endDate")
+    Long countByUserIdAndCreationDateBetween(@Param("userId") Long userId, @Param("startDate") LocalDateTime startDate, @Param("endDate") LocalDateTime endDate);
+
+}
 
 

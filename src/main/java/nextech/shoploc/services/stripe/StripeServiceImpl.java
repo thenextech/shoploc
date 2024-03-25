@@ -1,17 +1,12 @@
 package nextech.shoploc.services.stripe;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
-
-import org.springframework.stereotype.Service;
-
 import com.stripe.Stripe;
 import com.stripe.exception.StripeException;
 import com.stripe.model.checkout.Session;
 import com.stripe.param.checkout.SessionCreateParams;
+import org.springframework.stereotype.Service;
+
+import java.util.*;
 
 @Service
 public class StripeServiceImpl implements StripeService {

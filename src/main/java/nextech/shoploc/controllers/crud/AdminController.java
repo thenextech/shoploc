@@ -15,6 +15,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -90,6 +91,17 @@ public class AdminController {
     public ResponseEntity<Void> deleteAdmin(@PathVariable Long id) {
         adminService.deleteAdmin(id);
         return ResponseEntity.noContent().build();
+    }
+
+
+    @GetMapping("/stats")
+    @ApiOperation(value = "Get sales statistics", notes = "Retrieve sales statistics for a merchant")
+    public ResponseEntity<Map<String, Object>> getSalesStatistics(
+            @RequestParam Long merchantId,
+            @RequestParam(required = false) String startDate,
+            @RequestParam(required = false) String endDate) {
+
+        return ResponseEntity.ok(adminService.getSalesStatistics(startDate,endDate));
     }
 
 }
