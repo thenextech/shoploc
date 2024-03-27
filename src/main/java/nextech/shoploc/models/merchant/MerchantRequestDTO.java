@@ -15,5 +15,6 @@ public class MerchantRequestDTO extends UserResponseDTO {
     private String postalCode;
     private String phoneNumber;
     private Status status;
+    private String urlImage;
 }
 

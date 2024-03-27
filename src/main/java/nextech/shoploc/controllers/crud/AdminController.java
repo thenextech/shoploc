@@ -4,6 +4,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.v3.oas.annotations.Operation;
+import jakarta.annotation.Nullable;
 import nextech.shoploc.models.admin.AdminRequestDTO;
 import nextech.shoploc.models.admin.AdminResponseDTO;
 import nextech.shoploc.services.admin.AdminService;
@@ -98,8 +99,8 @@ public class AdminController {
     @ApiOperation(value = "Get sales statistics", notes = "Retrieve sales statistics for a merchant")
     public ResponseEntity<Map<String, Object>> getSalesStatistics(
             @RequestParam Long merchantId,
-            @RequestParam(required = false) String startDate,
-            @RequestParam(required = false) String endDate) {
+            @RequestParam(required = false) @Nullable String startDate,
+            @RequestParam(required = false) @Nullable String endDate) {
 
         return ResponseEntity.ok(adminService.getSalesStatistics(startDate,endDate));
     }

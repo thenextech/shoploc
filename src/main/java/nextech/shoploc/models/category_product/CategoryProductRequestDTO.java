@@ -8,5 +8,6 @@ import lombok.Setter;
 public class CategoryProductRequestDTO {
     private Long userId;
     private String categoryName;
+    private String urlImage;
     
 }

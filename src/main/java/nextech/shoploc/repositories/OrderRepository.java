@@ -112,8 +112,6 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
                                  @Param("endDate") LocalDateTime endDate);
 
 
-
-
     @Query("SELECT NEW map(p.categoryProduct.categoryName as category, COALESCE(SUM(ol.quantity * ol.unitPrice), 0) as revenue) " +
             "FROM OrderLine ol " +
             "JOIN ol.product p " +
@@ -135,7 +133,6 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
     List<Map<String, Double>> findTopProductsWithRevenue(@Param("merchantId") Long merchantId,
                                                          @Param("startDate") LocalDateTime startDate,
                                                          @Param("endDate") LocalDateTime endDate);
-
 
 
     @Query("SELECT COUNT(DISTINCT o.user.userId) " +

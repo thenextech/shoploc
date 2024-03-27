@@ -36,6 +36,9 @@ public class Merchant extends User {
     private String phoneNumber;
 
     @Column
+    private String urlImage;
+
+    @Column
     @Enumerated(EnumType.STRING)
     private Status status;
 
