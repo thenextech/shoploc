@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -39,7 +40,7 @@ public class MerchantServiceImpl implements MerchantService {
 
     private final ModelMapperUtils modelMapperUtils;
     
-    @Autowired                                    
+    @Autowired
     private EmailSenderService emailSenderService;
 
     public MerchantServiceImpl(MerchantRepository merchantRepository, OrderRepository orderRepository, ModelMapperUtils modelMapperUtils) {
@@ -147,27 +148,38 @@ public class MerchantServiceImpl implements MerchantService {
         Double todayRevenue = orderRepository.calculateTodayRevenue(merchantId, LocalDateTime.now().with(LocalTime.MIN),LocalDateTime.now().with(LocalTime.MAX));
         statisticsMap.put("todayRevenue", todayRevenue);
 
-        // Calcul du revenu de l'année en cours
-        LocalDate startOfYear = LocalDate.now().withDayOfYear(1);
-        LocalDate endOfYear = LocalDate.now();
-        Double yearRevenue = orderRepository.calculateTodayRevenue(merchantId, startOfYear.atStartOfDay(), endOfYear.atTime(LocalTime.MAX));
-        statisticsMap.put("yearRevenue", yearRevenue);
+        // Début de la semaine courante et passée
+        LocalDateTime startOfThisWeek = LocalDate.now().with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY)).atStartOfDay();
+        LocalDateTime startOfLastWeek = startOfThisWeek.minusWeeks(1);
 
-// Calcul du revenu de l'année précédente
+        // Calculer et stocker le revenu de la semaine courante
+        statisticsMap.put("weekRevenue", orderRepository.calculateTodayRevenue(merchantId, startOfThisWeek, LocalDateTime.now()));
+
+        // Calculer et stocker le revenu de la semaine passée
+        statisticsMap.put("lastWeekRevenue", orderRepository.calculateTodayRevenue(merchantId, startOfLastWeek, startOfThisWeek.minusSeconds(1)));
+
+
+        // Calcul du revenu de l'année en cours
+        LocalDate startOfCurrentYear = LocalDate.now().withDayOfYear(1);
+        LocalDate endOfCurrentYear = startOfCurrentYear.with(TemporalAdjusters.lastDayOfYear());
+        Double currentYearRevenue = orderRepository.calculateTodayRevenue(merchantId, startOfCurrentYear.atStartOfDay(), endOfCurrentYear.atTime(LocalTime.MAX));
+        statisticsMap.put("yearRevenue", currentYearRevenue);
+
+        // Calcul du revenu de l'année précédente
         LocalDate startOfLastYear = LocalDate.now().minusYears(1).withDayOfYear(1);
         LocalDate endOfLastYear = startOfLastYear.with(TemporalAdjusters.lastDayOfYear());
         Double lastYearRevenue = orderRepository.calculateTodayRevenue(merchantId, startOfLastYear.atStartOfDay(), endOfLastYear.atTime(LocalTime.MAX));
         statisticsMap.put("lastYearRevenue", lastYearRevenue);
 
-// Calcul du revenu du mois en cours
+        // Calcul du revenu du mois en cours
         LocalDate startOfMonth = LocalDate.now().withDayOfMonth(1);
-        LocalDate endOfMonth = LocalDate.now();
+        LocalDate endOfMonth = startOfMonth.with(TemporalAdjusters.lastDayOfMonth()); // Ajusté pour la fin du mois
         Double monthRevenue = orderRepository.calculateTodayRevenue(merchantId, startOfMonth.atStartOfDay(), endOfMonth.atTime(LocalTime.MAX));
         statisticsMap.put("monthRevenue", monthRevenue);
 
-// Calcul du revenu du mois précédent
+        // Calcul du revenu du mois précédent
         LocalDate startOfLastMonth = LocalDate.now().minusMonths(1).withDayOfMonth(1);
-        LocalDate endOfLastMonth = startOfLastMonth.with(TemporalAdjusters.lastDayOfMonth());
+        LocalDate endOfLastMonth = startOfLastMonth.with(TemporalAdjusters.lastDayOfMonth()); // Obtient le dernier jour du mois précédent
         Double lastMonthRevenue = orderRepository.calculateTodayRevenue(merchantId, startOfLastMonth.atStartOfDay(), endOfLastMonth.atTime(LocalTime.MAX));
         statisticsMap.put("lastMonthRevenue", lastMonthRevenue);
 

@@ -24,6 +24,7 @@ import java.util.Optional;
 @Api(tags = "Admins")
 public class AdminController {
 
+
     private final AdminService adminService;
     PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
@@ -98,7 +99,6 @@ public class AdminController {
     @GetMapping("/stats")
     @ApiOperation(value = "Get sales statistics", notes = "Retrieve sales statistics for a merchant")
     public ResponseEntity<Map<String, Object>> getSalesStatistics(
-            @RequestParam Long merchantId,
             @RequestParam(required = false) @Nullable String startDate,
             @RequestParam(required = false) @Nullable String endDate) {
 

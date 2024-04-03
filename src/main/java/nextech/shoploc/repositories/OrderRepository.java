@@ -194,6 +194,26 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
     @Query("SELECT COUNT(o) FROM Order o WHERE o.user.userId = :userId AND o.creationDate BETWEEN :startDate AND :endDate")
     Long countByUserIdAndCreationDateBetween(@Param("userId") Long userId, @Param("startDate") LocalDateTime startDate, @Param("endDate") LocalDateTime endDate);
 
+
+    @Query("SELECT COALESCE(SUM(ol.quantity * ol.unitPrice), 0) " +
+            "FROM OrderLine ol " +
+            "JOIN ol.order o " +
+            "JOIN ol.product p " +
+            "JOIN p.categoryProduct cp " +
+            "WHERE o.creationDate >= :startDate AND o.creationDate <= :endDate ")
+    Double calculateTodayRevenueForAdmin(
+                                 @Param("startDate") LocalDateTime startDate,
+                                 @Param("endDate") LocalDateTime endDate);
+
+
+    @Query("SELECT o FROM Order o " +
+            "JOIN o.orderLines ol " +
+            "JOIN ol.product p JOIN p.categoryProduct cp " +
+            "JOIN cp.merchant m " +
+            "WHERE o.creationDate BETWEEN :startDate AND :endDate")
+    List<Order> findOrdersBetweenDatesForAdmin(@Param("startDate") LocalDateTime startDate,
+                                                   @Param("endDate") LocalDateTime endDate);
+
 }
 
 
