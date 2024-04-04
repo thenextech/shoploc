@@ -66,4 +66,17 @@ public class BenefitsController {
         benefitsService.deleteBenefits(id);
         return ResponseEntity.noContent().build();
     }
+
+    @GetMapping("/user/{userId}")
+    @ApiOperation(value = "Get benefits by User ID", notes = "Retrieve benefits associated with a specific User ID")
+    public ResponseEntity<List<BenefitsResponseDTO>> getBenefitsByUserId(@PathVariable Long userId) {
+        List<BenefitsResponseDTO> benefits = benefitsService.getBenefitsByUserId(userId);
+        if (!benefits.isEmpty()) {
+            return new ResponseEntity<>(benefits, HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+
+
 }

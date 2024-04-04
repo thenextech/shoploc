@@ -66,4 +66,11 @@ public class BenefitsClientController {
         benefitsClientService.deleteBenefitsClient(id);
         return ResponseEntity.noContent().build();
     }
+
+    @GetMapping("/client/{clientId}")
+    public ResponseEntity<List<BenefitsClientResponseDTO>> getBenefitsClientsByClientId(@PathVariable Long clientId) {
+        List<BenefitsClientResponseDTO> benefitsClients = benefitsClientService.getBenefitsClientsByClientId(clientId);
+        return ResponseEntity.ok(benefitsClients);
+    }
+
 }

@@ -10,6 +10,8 @@ public interface BenefitsService {
 
     BenefitsResponseDTO getBenefitsById(Long id);
 
+    List<BenefitsResponseDTO> getBenefitsByUserId(Long userId);
+
     List<BenefitsResponseDTO> getAllBenefitss();
 
     void deleteBenefits(Long id);

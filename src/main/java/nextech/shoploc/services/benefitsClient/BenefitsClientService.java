@@ -15,4 +15,6 @@ public interface BenefitsClientService {
     void deleteBenefitsClient(Long id);
 
     BenefitsClientResponseDTO updateBenefitsClient(Long id, BenefitsClientRequestDTO benefitsRequestDTO);
+
+    List<BenefitsClientResponseDTO> getBenefitsClientsByClientId(Long clientId);
 }

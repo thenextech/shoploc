@@ -62,6 +62,15 @@ public class BenefitsServiceImpl implements BenefitsService {
     }
 
     @Override
+    public List<BenefitsResponseDTO> getBenefitsByUserId(Long userId) {
+        List<Benefits> benefitsList = benefitsRepository.findByUserUserId(userId);
+        return benefitsList.stream()
+                .map(benefits -> modelMapperUtils.getModelMapper().map(benefits, BenefitsResponseDTO.class))
+                .collect(Collectors.toList());
+    }
+
+
+    @Override
     public List<BenefitsResponseDTO> getAllBenefitss() {
         List<Benefits> benefitss = benefitsRepository.findAll();
         return benefitss.stream()
