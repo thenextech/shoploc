@@ -73,6 +73,11 @@ spec:
                 secretKeyRef:
                   key: mail_password
                   name: backend-secrets
+            - name: STRIPE_API_SECRET
+              valueFrom:
+                secretKeyRef:
+                  key: stripe_api_secret
+                  name: backend-secrets
 ---
 apiVersion: v1
 kind: Service
