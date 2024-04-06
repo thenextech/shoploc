@@ -1,11 +1,13 @@
 package nextech.shoploc.utils;
 
-import lombok.Getter;
+import java.util.List;
+import java.util.stream.Collectors;
+
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
+import lombok.Getter;
 
 @Service
 public class ModelMapperUtils {
@@ -22,7 +24,7 @@ public class ModelMapperUtils {
         return source
                 .stream()
                 .map(element -> modelMapper.map(element, targetClass))
-                .toList();
+                .collect(Collectors.toList());
 
     }
 
