@@ -8,7 +8,6 @@ import java.time.LocalDateTime;
 @Data
 public class BenefitsClientRequestDTO {
 
-    private Long benefitsClientId;
     private LocalDateTime dateCreation;
     private Status status;
     private Long benefitsId;

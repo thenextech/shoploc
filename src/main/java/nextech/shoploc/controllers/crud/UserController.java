@@ -3,6 +3,8 @@ package nextech.shoploc.controllers.crud;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.v3.oas.annotations.Operation;
+import jakarta.servlet.http.HttpServletRequest;
+import nextech.shoploc.controllers.auth.SessionManager;
 import nextech.shoploc.models.user.UserRequestDTO;
 import nextech.shoploc.models.user.UserResponseDTO;
 import nextech.shoploc.services.user.UserService;
@@ -11,7 +13,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -20,9 +24,12 @@ import java.util.Optional;
 public class UserController {
 
     private final UserService userService;
+    private final SessionManager sessionManager;
+
     @Autowired
-    public UserController(final UserService userService) {
+    public UserController(final UserService userService, SessionManager sessionManager) {
         this.userService = userService;
+        this.sessionManager = sessionManager;
     }
 
     @PostMapping("/create")
@@ -80,6 +87,16 @@ public class UserController {
         } else {
             return ResponseEntity.notFound().build();
         }
+    }
+
+    @GetMapping("/userConnected")
+    public ResponseEntity<Map<String, Object>> getUserConnected(HttpServletRequest request) {
+            Map<String, Object> response = new HashMap<>();
+            Long userId= sessionManager.getConnectedUserId(request);
+            UserResponseDTO userConnected = userService.getUserById(userId);
+            response.put("object", userConnected);
+            response.put("userId", userConnected.getUserId());
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
 }

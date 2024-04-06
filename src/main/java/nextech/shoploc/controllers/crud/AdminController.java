@@ -4,6 +4,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.v3.oas.annotations.Operation;
+import jakarta.annotation.Nullable;
 import nextech.shoploc.models.admin.AdminRequestDTO;
 import nextech.shoploc.models.admin.AdminResponseDTO;
 import nextech.shoploc.services.admin.AdminService;
@@ -15,12 +16,14 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
 @RequestMapping("/admins")
 @Api(tags = "Admins")
 public class AdminController {
+
 
     private final AdminService adminService;
     PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
@@ -90,6 +93,16 @@ public class AdminController {
     public ResponseEntity<Void> deleteAdmin(@PathVariable Long id) {
         adminService.deleteAdmin(id);
         return ResponseEntity.noContent().build();
+    }
+
+
+    @GetMapping("/stats")
+    @ApiOperation(value = "Get sales statistics", notes = "Retrieve sales statistics for a merchant")
+    public ResponseEntity<Map<String, Object>> getSalesStatistics(
+            @RequestParam(required = false) @Nullable String startDate,
+            @RequestParam(required = false) @Nullable String endDate) {
+
+        return ResponseEntity.ok(adminService.getSalesStatistics(startDate,endDate));
     }
 
 }

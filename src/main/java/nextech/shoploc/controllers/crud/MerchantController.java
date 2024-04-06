@@ -5,6 +5,7 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.v3.oas.annotations.Operation;
 import nextech.shoploc.models.merchant.MerchantRequestDTO;
 import nextech.shoploc.models.merchant.MerchantResponseDTO;
+import nextech.shoploc.repositories.OrderRepository;
 import nextech.shoploc.services.merchant.MerchantService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -12,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -20,10 +22,11 @@ import java.util.Optional;
 public class MerchantController {
 
     private final MerchantService merchantService;
-
+    private final OrderRepository orderRepository;
     @Autowired
-    public MerchantController(final MerchantService merchantService) {
+    public MerchantController(final MerchantService merchantService, OrderRepository orderRepository) {
         this.merchantService = merchantService;
+        this.orderRepository = orderRepository;
     }
 
     @PostMapping("/create")
@@ -75,4 +78,16 @@ public class MerchantController {
         merchantService.deleteMerchant(id);
         return ResponseEntity.noContent().build();
     }
+
+
+    @GetMapping("/stats")
+    @ApiOperation(value = "Get sales statistics", notes = "Retrieve sales statistics for a merchant")
+    public ResponseEntity<Map<String, Object>> getSalesStatistics(
+            @RequestParam Long merchantId,
+            @RequestParam(required = false) String startDate,
+            @RequestParam(required = false) String endDate) {
+
+        return ResponseEntity.ok(merchantService.getSalesStatistics(merchantId,startDate,endDate));
+    }
+
 }

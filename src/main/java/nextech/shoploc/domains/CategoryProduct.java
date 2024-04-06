@@ -23,6 +23,9 @@ public class CategoryProduct {
     @JoinColumn(name = "user_id", nullable = false)
     private Merchant merchant;
 
+    @Column
+    private String urlImage;
+
     @Column(name = "category_name")
     private String categoryName;
 

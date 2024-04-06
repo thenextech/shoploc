@@ -5,12 +5,15 @@ import nextech.shoploc.domains.OrderLine;
 import nextech.shoploc.domains.Product;
 import nextech.shoploc.models.order_line.OrderLineRequestDTO;
 import nextech.shoploc.models.order_line.OrderLineResponseDTO;
+import nextech.shoploc.models.product.ProductResponseDTO;
 import nextech.shoploc.repositories.OrderLineRepository;
 import nextech.shoploc.repositories.OrderRepository;
 import nextech.shoploc.repositories.ProductRepository;
+import nextech.shoploc.services.product.ProductService;
 import nextech.shoploc.utils.ModelMapperUtils;
 import nextech.shoploc.utils.exceptions.NotFoundException;
 import org.modelmapper.Converter;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -23,6 +26,9 @@ public class OrderLineServiceImpl implements OrderLineService {
     private final OrderRepository orderRepository;
 
     private final ModelMapperUtils modelMapperUtils;
+    
+    @Autowired
+    private ProductService productService;
 
     public OrderLineServiceImpl(OrderLineRepository orderLineRepository,
                                 OrderRepository orderRepository, ProductRepository productRepository, ModelMapperUtils modelMapperUtils) {
@@ -56,12 +62,21 @@ public class OrderLineServiceImpl implements OrderLineService {
     }
 
     @Override
-    public OrderLineResponseDTO createOrderLine(
-            final OrderLineRequestDTO orderLineRequestDTO) {
+    public OrderLineResponseDTO createOrderLine(OrderLineRequestDTO orderLineRequestDTO) {
+        // Fetch the Product entity using productId
+        ProductResponseDTO product = productService.getProductById(orderLineRequestDTO.getProductId());
+        // Create the OrderLine entity
         OrderLine orderLine = modelMapperUtils.getModelMapper().map(orderLineRequestDTO, OrderLine.class);
+        
+        // Set the productName into OrderLineResponseDTO
+        OrderLineResponseDTO orderLineResponseDTO = modelMapperUtils.getModelMapper().map(orderLine, OrderLineResponseDTO.class);
+        orderLineResponseDTO.setProductName(product.getName());
+        
+        // Save the OrderLine entity
         orderLine = orderLineRepository.save(orderLine);
-        return modelMapperUtils.getModelMapper().map(orderLine, OrderLineResponseDTO.class);
+        return orderLineResponseDTO;
     }
+
 
     @Override
     public OrderLineResponseDTO getOrderLineById(Long id) {
@@ -69,6 +84,16 @@ public class OrderLineServiceImpl implements OrderLineService {
                 .orElseThrow(() -> new NotFoundException("OrderLine not found with ID: " + id));
 
         return modelMapperUtils.getModelMapper().map(orderLine, OrderLineResponseDTO.class);
+    }
+    
+    @Override
+    public List<OrderLineResponseDTO> getOrderLinesByMerchantId(Long merchantId) {
+
+        List<OrderLine> orderLines = orderLineRepository.findAllByMerchantId(merchantId);
+
+        return orderLines.stream()
+                .map(orderLine -> modelMapperUtils.getModelMapper().map(orderLine, OrderLineResponseDTO.class))
+                .collect(Collectors.toList());
     }
 
     @Override

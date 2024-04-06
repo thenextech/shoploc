@@ -5,6 +5,7 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.v3.oas.annotations.Operation;
 import nextech.shoploc.models.loyalty_card.LoyaltyCardRequestDTO;
 import nextech.shoploc.models.loyalty_card.LoyaltyCardResponseDTO;
+import nextech.shoploc.models.merchant.MerchantResponseDTO;
 import nextech.shoploc.services.loyaltyCard.LoyaltyCardService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -54,6 +55,7 @@ public class LoyaltyCardController {
         List<LoyaltyCardResponseDTO> loyaltyCards = loyaltyCardService.getAllLoyaltyCards();
         return new ResponseEntity<>(loyaltyCards, HttpStatus.OK);
     }
+    
 
     @PutMapping("/{id}")
     @ApiOperation(value = "Update an loyaltyCard", notes = "Update an existing loyaltyCard by its ID")
@@ -61,12 +63,26 @@ public class LoyaltyCardController {
         Optional<LoyaltyCardResponseDTO> updatedLoyaltyCard = Optional.ofNullable(loyaltyCardService.updateLoyaltyCard(id, loyaltyCardRequestDTO));
         return updatedLoyaltyCard.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
+    
+ 
 
     @DeleteMapping("/{id}")
     @ApiOperation(value = "Delete an loyaltyCard", notes = "Delete an loyaltyCard by its ID")
     public ResponseEntity<Void> deleteLoyaltyCard(@PathVariable Long id) {
         loyaltyCardService.deleteLoyaltyCard(id);
         return ResponseEntity.noContent().build();
+    }
+
+
+    @PutMapping("/change-points")
+    @ApiOperation(value = "Update an loyaltyCard", notes = "Update an existing loyaltyCard by its ID")
+    public ResponseEntity<LoyaltyCardResponseDTO> updatePointsLoyaltyCard( @RequestBody LoyaltyCardRequestDTO loyaltyCardRequestDTO) {
+        Optional<LoyaltyCardResponseDTO> updatedLoyaltyCard = Optional.ofNullable(loyaltyCardService.getLoyaltyCardByClient(loyaltyCardRequestDTO.getUserId()));
+        Double pointsBefore=updatedLoyaltyCard.get().getPoints();
+        Double pointsToChange=loyaltyCardRequestDTO.getPoints();
+        updatedLoyaltyCard.get().setPoints(pointsBefore+pointsToChange);
+        Optional<LoyaltyCardResponseDTO> submitUpdatedLCard = Optional.ofNullable(loyaltyCardService.updateLoyaltyCard(updatedLoyaltyCard.get().getLoyaltyCardId(), updatedLoyaltyCard.get()));
+        return submitUpdatedLCard.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
 }

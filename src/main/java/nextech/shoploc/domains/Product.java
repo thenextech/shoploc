@@ -33,6 +33,9 @@ public class Product {
     @Enumerated(EnumType.STRING)
     private Status status;
 
+    @Column
+    private String urlImage;
+
     @ManyToOne
     @JoinColumn(name = "category_product_id", nullable = false)
     private CategoryProduct categoryProduct;

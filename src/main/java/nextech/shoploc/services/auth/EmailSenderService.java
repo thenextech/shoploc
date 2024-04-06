@@ -1,11 +1,11 @@
 package nextech.shoploc.services.auth;
 
-import java.io.ByteArrayOutputStream;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
-
+import com.lowagie.text.DocumentException;
+import jakarta.mail.MessagingException;
+import jakarta.mail.internet.MimeMessage;
+import nextech.shoploc.domains.Invoice;
+import nextech.shoploc.domains.OrderLine;
+import nextech.shoploc.models.merchant.MerchantResponseDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -13,13 +13,11 @@ import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 import org.xhtmlrenderer.pdf.ITextRenderer;
 
-import com.lowagie.text.DocumentException;
-
-import jakarta.mail.MessagingException;
-import jakarta.mail.internet.MimeMessage;
-import nextech.shoploc.domains.Invoice;
-import nextech.shoploc.domains.OrderLine;
-import nextech.shoploc.models.merchant.MerchantResponseDTO;
+import java.io.ByteArrayOutputStream;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 
 @Service
 public class EmailSenderService {
@@ -169,8 +167,7 @@ public class EmailSenderService {
                     "        <ul style=\"list-style-type: none; padding-left: 0;\">\n" +
                     "          <li><strong>Nom de l'entreprise :</strong> " + merchant.getBusinessName() + "</li>\n" +
                     "          <li><strong>Adresse e-mail :</strong> " + merchant.getEmail() + "</li>\n" +
-                    "          <li><strong>Adresse Ligne 1 :</strong> " + merchant.getLineAddress1() + "</li>\n" +
-                    "          <li><strong>Adresse Ligne 2 :</strong> " + merchant.getLineAddress2() + "</li>\n" +
+                    "          <li><strong>Adresse :</strong> " + merchant.getAddress() + "</li>\n" +
                     "          <li><strong>Ville :</strong> " + merchant.getCity() + "</li>\n" +
                     "          <li><strong>Code postal :</strong> " + merchant.getPostalCode() + "</li>\n" +
                     "        </ul>\n" +

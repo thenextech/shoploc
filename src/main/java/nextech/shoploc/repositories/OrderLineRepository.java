@@ -10,5 +10,6 @@ import java.util.List;
 @Repository
 public interface OrderLineRepository extends JpaRepository<OrderLine, Long> {
     List<OrderLine> findAllByOrder(Order order);
+    List<OrderLine> findAllByMerchantId(Long MerchantId);
 
 }

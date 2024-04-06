@@ -17,5 +17,6 @@ public class ProductRequestDTO {
     private Integer qteStock;
     private String description;
     private Status status;
+    private String urlImage;
 
 }

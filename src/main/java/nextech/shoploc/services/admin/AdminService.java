@@ -4,6 +4,7 @@ import nextech.shoploc.models.admin.AdminRequestDTO;
 import nextech.shoploc.models.admin.AdminResponseDTO;
 
 import java.util.List;
+import java.util.Map;
 
 public interface AdminService {
     AdminResponseDTO createAdmin(AdminRequestDTO adminRequestDTO);
@@ -14,5 +15,6 @@ public interface AdminService {
     void deleteAdmin(Long id);
 
     AdminResponseDTO updateAdmin(Long id, AdminRequestDTO adminRequestDTO);
-    // Autres méthodes de service si nécessaire.
+
+    Map<String, Object> getSalesStatistics(String startDate, String endDate);
 }

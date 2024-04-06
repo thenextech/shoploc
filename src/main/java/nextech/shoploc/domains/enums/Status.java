@@ -6,12 +6,12 @@ public enum Status {
     BLOCKED,
     DELETED,
     IN_PREPARATION,
+    Awaiting_Payment,
     READY,
     REFUSED,
     CANCELLED,
     USED,
     OUT_OF_STOCK,
-    AVAILABLE
-
-    
+    AVAILABLE,
+    PAID
 }

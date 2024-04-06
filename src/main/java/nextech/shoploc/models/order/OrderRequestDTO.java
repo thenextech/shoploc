@@ -1,9 +1,10 @@
 package nextech.shoploc.models.order;
+import java.time.LocalDateTime;
+import java.util.List;
+
 import lombok.Getter;
 import lombok.Setter;
 import nextech.shoploc.domains.enums.Status;
-
-import java.time.LocalDateTime;
 
 @Getter
 @Setter
@@ -12,5 +13,6 @@ public class OrderRequestDTO {
     private double totalPrice;
     private LocalDateTime creationDate;
     private Status status;
+    private List<String> merchantAdresses;
     private Long userId;
 }

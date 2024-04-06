@@ -88,4 +88,12 @@ public class BenefitsClientServiceImpl implements BenefitsClientService {
         benefitsClient = benefitsClientRepository.save(benefitsClient);
         return modelMapperUtils.getModelMapper().map(benefitsClient, BenefitsClientResponseDTO.class);
     }
+
+    @Override
+    public List<BenefitsClientResponseDTO> getBenefitsClientsByClientId(Long clientId) {
+        List<BenefitsClient> benefitsClients = benefitsClientRepository.findByClientId(clientId);
+        return benefitsClients.stream()
+                .map(benefits -> modelMapperUtils.getModelMapper().map(benefits, BenefitsClientResponseDTO.class))
+                .collect(Collectors.toList());
+    }
 }

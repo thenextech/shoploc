@@ -5,6 +5,7 @@ import nextech.shoploc.models.merchant.MerchantResponseDTO;
 import nextech.shoploc.utils.exceptions.EmailAlreadyExistsException;
 
 import java.util.List;
+import java.util.Map;
 
 public interface MerchantService {
     MerchantResponseDTO createMerchant(MerchantRequestDTO merchantRequestDTO) throws EmailAlreadyExistsException;
@@ -14,4 +15,6 @@ public interface MerchantService {
     void deleteMerchant(Long id);
     MerchantResponseDTO updateMerchant(Long id, MerchantRequestDTO merchantRequestDTO);
 	void activateMerchant(Long merchantId);
+
+    Map<String, Object> getSalesStatistics(Long merchantId, String startDate, String endDate);
 }
