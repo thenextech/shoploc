@@ -55,8 +55,8 @@ public class StripeServiceImpl implements StripeService {
         builder.addPaymentMethodType(SessionCreateParams.PaymentMethodType.CARD);
         builder.addAllLineItem(lineItems);
         builder.setMode(SessionCreateParams.Mode.PAYMENT);
-        builder.setSuccessUrl("http://localhost:3000/orderPaid/" + hashOrderId(orderId));
-        builder.setCancelUrl("http://localhost:3000/client/dashboard/");
+        builder.setSuccessUrl("http://172.28.100.230:30100/orderPaid/" + hashOrderId(orderId));
+        builder.setCancelUrl("http://172.28.100.230:30100/client/dashboard/");
 
         SessionCreateParams createParams = builder.build();
         
