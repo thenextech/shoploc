@@ -4,12 +4,18 @@ import com.stripe.Stripe;
 import com.stripe.exception.StripeException;
 import com.stripe.model.checkout.Session;
 import com.stripe.param.checkout.SessionCreateParams;
+
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
 
 @Service
 public class StripeServiceImpl implements StripeService {
+	
+	
+	@Value("${env.local}")
+    private String envUrl;
 	
 	private Long priceValue;
 
@@ -55,8 +61,8 @@ public class StripeServiceImpl implements StripeService {
         builder.addPaymentMethodType(SessionCreateParams.PaymentMethodType.CARD);
         builder.addAllLineItem(lineItems);
         builder.setMode(SessionCreateParams.Mode.PAYMENT);
-        builder.setSuccessUrl("http://172.28.100.230:30100/orderPaid/" + hashOrderId(orderId));
-        builder.setCancelUrl("http://172.28.100.230:30100/client/dashboard/");
+        builder.setSuccessUrl("" + envUrl + hashOrderId(orderId));
+        builder.setCancelUrl("" + envUrl + "client/dashboard/");
 
         SessionCreateParams createParams = builder.build();
         
