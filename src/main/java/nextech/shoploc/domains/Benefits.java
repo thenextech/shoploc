@@ -40,7 +40,7 @@ public class Benefits {
     private LocalDateTime dateEnd;
 
     @ManyToOne
-    @JoinColumn(name = "product_id", nullable = false)
+    @JoinColumn(name = "product_id")
     private Product product;
 
     @ManyToOne

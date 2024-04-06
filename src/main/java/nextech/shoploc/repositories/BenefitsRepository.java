@@ -1,12 +1,13 @@
 package nextech.shoploc.repositories;
 
-import nextech.shoploc.domains.Benefits;
+import java.util.List;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
+import nextech.shoploc.domains.Benefits;
 
 @Repository
 public interface BenefitsRepository extends JpaRepository<Benefits, Long> {

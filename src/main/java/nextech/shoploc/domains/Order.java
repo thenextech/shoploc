@@ -31,6 +31,8 @@ public class Order {
 
     @Column(name = "creation_date")
     private LocalDateTime creationDate;
+    
+    private List<String> merchantAdresses;
 
     @Enumerated(EnumType.STRING)
     private Status status;

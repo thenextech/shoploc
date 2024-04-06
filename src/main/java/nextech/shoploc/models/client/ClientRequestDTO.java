@@ -2,6 +2,7 @@ package nextech.shoploc.models.client;
 
 import lombok.Getter;
 import lombok.Setter;
+import nextech.shoploc.domains.enums.Status;
 import nextech.shoploc.models.user.UserResponseDTO;
 
 @Getter
@@ -13,4 +14,5 @@ public class ClientRequestDTO extends UserResponseDTO {
     private String lineAddress2;
     private String city;
     private String postalCode;
+    private Status status;
 }

@@ -94,7 +94,7 @@ public class ClientServiceImpl implements ClientService {
     public ClientResponseDTO updateClient(Long id, ClientRequestDTO clientRequestDTO) {
         Client client = clientRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Client not found with ID: " + id));
-
+        
         modelMapperUtils.getModelMapper().map(clientRequestDTO, client);
         client = clientRepository.save(client);
         return modelMapperUtils.getModelMapper().map(client, ClientResponseDTO.class);

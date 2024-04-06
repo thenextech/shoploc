@@ -167,8 +167,7 @@ public class EmailSenderService {
                     "        <ul style=\"list-style-type: none; padding-left: 0;\">\n" +
                     "          <li><strong>Nom de l'entreprise :</strong> " + merchant.getBusinessName() + "</li>\n" +
                     "          <li><strong>Adresse e-mail :</strong> " + merchant.getEmail() + "</li>\n" +
-                    "          <li><strong>Adresse Ligne 1 :</strong> " + merchant.getLineAddress1() + "</li>\n" +
-                    "          <li><strong>Adresse Ligne 2 :</strong> " + merchant.getLineAddress2() + "</li>\n" +
+                    "          <li><strong>Adresse :</strong> " + merchant.getAddress() + "</li>\n" +
                     "          <li><strong>Ville :</strong> " + merchant.getCity() + "</li>\n" +
                     "          <li><strong>Code postal :</strong> " + merchant.getPostalCode() + "</li>\n" +
                     "        </ul>\n" +

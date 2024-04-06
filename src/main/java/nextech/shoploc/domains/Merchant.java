@@ -20,11 +20,8 @@ public class Merchant extends User {
     @Column(name = "business_name")
     private String businessName;
     
-    @Column(name = "line_address1")
-    private String lineAddress1;
-    
-    @Column(name = "line_address2")
-    private String lineAddress2;
+    @Column(name = "address")
+    private String address;
     
     @Column(name = "city")
     private String city;

@@ -76,6 +76,7 @@ public class ClientLoginController {
                 sessionManager.setUserToVerify(clientResponseDTO.getUserId(), UserTypes.client.toString(), verificationCode, response);
                 Map<String, Object> res = new HashMap<>();
                 res.put("url", "/client/verify");
+                res.put("clientId", clientResponseDTO.getUserId());
                 return new ResponseEntity<>(res, HttpStatus.OK);
             } else {
                 Map<String, Object> res = new HashMap<>();
@@ -107,6 +108,7 @@ public class ClientLoginController {
                 return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
             } else {
                 response.put("url", "/client/login");
+                response.put("clientId", ard.getUserId());
                 return new ResponseEntity<>(response, HttpStatus.OK);
             }
         } catch (Exception e) {

@@ -1,5 +1,11 @@
 package nextech.shoploc.services.benefits;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
+import org.modelmapper.Converter;
+import org.springframework.stereotype.Service;
+
 import nextech.shoploc.domains.Benefits;
 import nextech.shoploc.domains.Product;
 import nextech.shoploc.domains.User;
@@ -10,11 +16,6 @@ import nextech.shoploc.repositories.ProductRepository;
 import nextech.shoploc.repositories.UserRepository;
 import nextech.shoploc.utils.ModelMapperUtils;
 import nextech.shoploc.utils.exceptions.NotFoundException;
-import org.modelmapper.Converter;
-import org.springframework.stereotype.Service;
-
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class BenefitsServiceImpl implements BenefitsService {
@@ -62,15 +63,6 @@ public class BenefitsServiceImpl implements BenefitsService {
     }
 
     @Override
-    public List<BenefitsResponseDTO> getBenefitsByUserId(Long userId) {
-        List<Benefits> benefitsList = benefitsRepository.findByUserUserId(userId);
-        return benefitsList.stream()
-                .map(benefits -> modelMapperUtils.getModelMapper().map(benefits, BenefitsResponseDTO.class))
-                .collect(Collectors.toList());
-    }
-
-
-    @Override
     public List<BenefitsResponseDTO> getAllBenefitss() {
         List<Benefits> benefitss = benefitsRepository.findAll();
         return benefitss.stream()
@@ -94,5 +86,13 @@ public class BenefitsServiceImpl implements BenefitsService {
         modelMapperUtils.getModelMapper().map(benefitsRequestDTO, benefits);
         benefits = benefitsRepository.save(benefits);
         return modelMapperUtils.getModelMapper().map(benefits, BenefitsResponseDTO.class);
+    }
+    
+    @Override
+    public List<BenefitsResponseDTO> getBenefitsByUserId(Long userId) {
+        List<Benefits> benefitsList = benefitsRepository.findByUserUserId(userId);
+        return benefitsList.stream()
+                .map(benefits -> modelMapperUtils.getModelMapper().map(benefits, BenefitsResponseDTO.class))
+                .collect(Collectors.toList());
     }
 }

@@ -11,4 +11,5 @@ import java.util.Optional;
 public interface LoyaltyCardRepository extends JpaRepository<LoyaltyCard, Long> {
 
     Optional<LoyaltyCard> getLoyaltyCardByClient(Client client);
+ 
 }

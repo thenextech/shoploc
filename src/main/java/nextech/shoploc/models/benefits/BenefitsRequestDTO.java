@@ -8,7 +8,6 @@ import java.time.LocalDateTime;
 @Data
 public class BenefitsRequestDTO {
 
-    private Long benefitsId;
     private String description;
     private double cost;
     private TypeBenefits typeBenefits;

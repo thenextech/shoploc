@@ -67,7 +67,7 @@ public class BenefitsClientController {
         return ResponseEntity.noContent().build();
     }
 
-    @GetMapping("/{clientId}")
+    @GetMapping("/client/{clientId}")
     public ResponseEntity<List<BenefitsClientResponseDTO>> getBenefitsClientsByClientId(@PathVariable Long clientId) {
         List<BenefitsClientResponseDTO> benefitsClients = benefitsClientService.getBenefitsClientsByClientId(clientId);
         return ResponseEntity.ok(benefitsClients);

@@ -4,6 +4,8 @@ public enum TypeBenefits {
     FREE,
     REMISE,
     POINTS,
-    OTHERS
+    OTHERS,
+    PDP,
+    TDB
     
 }

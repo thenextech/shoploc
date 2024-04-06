@@ -66,7 +66,6 @@ public class BenefitsController {
         benefitsService.deleteBenefits(id);
         return ResponseEntity.noContent().build();
     }
-
     @GetMapping("/user/{userId}")
     @ApiOperation(value = "Get benefits by User ID", notes = "Retrieve benefits associated with a specific User ID")
     public ResponseEntity<List<BenefitsResponseDTO>> getBenefitsByUserId(@PathVariable Long userId) {
@@ -77,6 +76,5 @@ public class BenefitsController {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
-
 
 }

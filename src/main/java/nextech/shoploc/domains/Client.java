@@ -2,10 +2,13 @@ package nextech.shoploc.domains;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.OneToOne;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import nextech.shoploc.domains.enums.Status;
 
 import java.time.LocalDateTime;
 
@@ -29,6 +32,10 @@ public class Client extends User {
 
     @Column(name = "clientPostalCode")
     private String postalCode;
+    
+    @Column
+    @Enumerated(EnumType.STRING)
+    private Status status;
 
     @Column(name = "is_vfp")
     private Boolean isVFP;

@@ -96,13 +96,13 @@ public class AdminLoginController {
 
     @PostMapping("/register")
     public ResponseEntity<Map<String, Object>> register(@RequestBody AdminRequestDTO admin) {
-        AdminResponseDTO ard = adminService.createAdmin(admin);
+    	AdminResponseDTO ard = adminService.createAdmin(admin);
         Map<String, Object> response = new HashMap<>();
         if (ard == null) {
             response.put(ERROR_KEY, REGISTER_ERROR);
             return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
         } else {
-            response.put("url", URL_ADMIN_LOGIN);
+            response.put("url", URL_ADMIN_DASHBOARD);
             return new ResponseEntity<>(response, HttpStatus.FOUND);
         }
     }
