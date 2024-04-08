@@ -121,7 +121,7 @@ public class ClientLoginController {
     public ResponseEntity<Map<String, Object>> dashboard(HttpServletRequest request) {
         if (sessionManager.isUserConnected(request, "client")) {
             Map<String, Object> response = new HashMap<>();
-            UserResponseDTO client = userService.getUserById(sessionManager.getConnectedUserId(request));
+            ClientResponseDTO client = clientService.getClientById(sessionManager.getConnectedUserId(request));
             response.put("object", client);
             return new ResponseEntity<>(response, HttpStatus.OK);
         } else {
