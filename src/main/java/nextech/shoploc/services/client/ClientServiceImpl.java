@@ -38,7 +38,7 @@ public class ClientServiceImpl implements ClientService {
         Client client = modelMapperUtils.getModelMapper().map(clientRequestDTO, Client.class);
         String encodedPassword = passwordEncoder.encode(client.getPassword());
         client.setPassword(encodedPassword);
-        client.setIsVFP(false);
+        client.setVfp(false);
         LoyaltyCard loyaltyCard=new LoyaltyCard();
         loyaltyCard.setClient(client);
         loyaltyCard.setSolde(0);

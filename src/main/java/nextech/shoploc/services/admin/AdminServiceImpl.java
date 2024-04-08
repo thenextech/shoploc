@@ -88,7 +88,7 @@ public class AdminServiceImpl implements AdminService {
         LocalDateTime endDateTime = parseDateTime(endDate, LocalDateTime.now().with(LocalTime.MAX));
 
         Map<String, Object> statisticsMap = new HashMap<>();
-        statisticsMap.put("vfpClientsCount", adminRepository.countByIsVFP());
+        statisticsMap.put("vfpClientsCount", adminRepository.countByVfp());
         statisticsMap.put("nbClients", adminRepository.countClients());
         statisticsMap.put("nombreTotalClients", orderRepository.nombreTotalClients(startDateTime, endDateTime));
         statisticsMap.put("listeTypesMerchants", adminRepository.listeTypesMerchants());

@@ -9,10 +9,10 @@ import nextech.shoploc.models.user.UserResponseDTO;
 @Setter
 public class ClientRequestDTO extends UserResponseDTO {
     private String licensePlate;
-    private boolean isVFP;
+    private boolean vfp;
     private String lineAddress1;
     private String lineAddress2;
-    private String city;
+    private String isCity;
     private String postalCode;
     private Status status;
 }

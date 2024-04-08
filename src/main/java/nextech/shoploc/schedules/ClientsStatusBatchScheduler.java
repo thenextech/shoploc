@@ -39,14 +39,14 @@ public class ClientsStatusBatchScheduler {
             if (client.getLastDateTimeVFPActivated() == null || now.isAfter(client.getLastDateTimeVFPActivated().plusDays(15))) {
                 // Si le client n'a jamais eu le statut VFP ou si les 15 jours depuis la dernière activation sont écoulés
                 if (ordersCount >= 10) {
-                    client.setIsVFP(true);
+                    client.setVfp(true);
                     client.setLastDateTimeVFPActivated(now);
                 } else {
-                    client.setIsVFP(false);
+                    client.setVfp(false);
                 }
             } else if (ordersCount < 10 && now.isAfter(client.getLastDateTimeVFPActivated().plusDays(15))) {
                 // Si moins de 10 achats ont été faits dans les 15 jours après la dernière activation
-                client.setIsVFP(false);
+                client.setVfp(false);
             }
             // Pas besoin de modifier le statut ou la date si le client conserve son statut VFP avec plus de 10 achats dans les 15 derniers jours
 

@@ -10,8 +10,8 @@ import java.util.Optional;
 
 public interface AdminRepository extends JpaRepository<Admin, Long> {
     Optional<Admin> findAdminByEmail(String email);
-    @Query("SELECT COUNT(c.userId) FROM Client c WHERE c.isVFP = true")
-    Long countByIsVFP();
+    @Query("SELECT COUNT(c.userId) FROM Client c WHERE c.vfp = true")
+    Long countByVfp();
 
     @Query("SELECT COUNT(c.userId) FROM Client c")
     Long countClients();

@@ -38,7 +38,7 @@ public class Client extends User {
     private Status status;
 
     @Column(name = "is_vfp")
-    private Boolean isVFP;
+    private Boolean vfp;
 
     @Column
     private LocalDateTime lastDateTimeVFPActivated;
