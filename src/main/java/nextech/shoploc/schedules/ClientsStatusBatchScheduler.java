@@ -24,7 +24,7 @@ public class ClientsStatusBatchScheduler {
     @Autowired
     private ApplicationContext applicationContext;
 
-    @Scheduled(fixedDelayString = "${duration.update.status.clients.batch.seconds:60000}")
+    @Scheduled(fixedDelayString = "${duration.update.status.clients.batch.seconds:60}")
     public void updateAllClientsStatusBatch() {
         if (!(applicationContext instanceof ConfigurableApplicationContext) ||
                 !((ConfigurableApplicationContext) applicationContext).isActive()) {
