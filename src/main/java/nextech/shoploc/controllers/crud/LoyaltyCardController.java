@@ -78,11 +78,17 @@ public class LoyaltyCardController {
     @ApiOperation(value = "Update an loyaltyCard", notes = "Update an existing loyaltyCard by its ID")
     public ResponseEntity<LoyaltyCardResponseDTO> updatePointsLoyaltyCard( @RequestBody LoyaltyCardRequestDTO loyaltyCardRequestDTO) {
         Optional<LoyaltyCardResponseDTO> updatedLoyaltyCard = Optional.ofNullable(loyaltyCardService.getLoyaltyCardByClient(loyaltyCardRequestDTO.getUserId()));
-        Double pointsBefore=updatedLoyaltyCard.get().getPoints();
-        Double pointsToChange=loyaltyCardRequestDTO.getPoints();
-        updatedLoyaltyCard.get().setPoints(pointsBefore+pointsToChange);
-        Optional<LoyaltyCardResponseDTO> submitUpdatedLCard = Optional.ofNullable(loyaltyCardService.updateLoyaltyCard(updatedLoyaltyCard.get().getLoyaltyCardId(), updatedLoyaltyCard.get()));
-        return submitUpdatedLCard.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+        if(updatedLoyaltyCard.isPresent()) {
+            double pointsBefore = updatedLoyaltyCard.get().getPoints();
+            double pointsToChange = loyaltyCardRequestDTO.getPoints();
+            double totalPoints = Math.round((pointsBefore + pointsToChange) * 100.0) / 100.0;
+            updatedLoyaltyCard.get().setPoints(totalPoints);
+            Optional<LoyaltyCardResponseDTO> submitUpdatedLCard = Optional.ofNullable(loyaltyCardService.updateLoyaltyCard(updatedLoyaltyCard.get().getLoyaltyCardId(), updatedLoyaltyCard.get()));
+            return submitUpdatedLCard.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+        } else {
+            return ResponseEntity.notFound().build();
+        }
     }
+
 
 }
